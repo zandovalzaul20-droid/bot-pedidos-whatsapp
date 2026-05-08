@@ -55,23 +55,24 @@ MENSAJES = CONFIG_DATA.get("mensajes", {})
 NEGOCIO = CONFIG_DATA.get("negocio", {})
 PRODUCTOS = CONFIG_DATA.get("productos", {})
 
+
 # =========================
-# FUNCION PARA ENVIAR MENSAJES
+# NORMALIZAR NUMERO
 # =========================
 def normalizar_numero(numero: str) -> str:
     numero = "".join(ch for ch in str(numero) if ch.isdigit())
-
-    # Caso comun para Mexico: 521XXXXXXXXXX -> 52XXXXXXXXXX
     if numero.startswith("521") and len(numero) == 13:
         numero = "52" + numero[3:]
-
     return numero
 
 
+# =========================
+# ENVIAR MENSAJE DE TEXTO
+# =========================
 def enviar_mensaje(numero, mensaje):
     numero = normalizar_numero(numero)
     url = f"https://graph.facebook.com/v18.0/{PHONE_NUMBER_ID}/messages"
-    
+
     headers = {
         "Authorization": f"Bearer {ACCESS_TOKEN}",
         "Content-Type": "application/json"
@@ -87,13 +88,64 @@ def enviar_mensaje(numero, mensaje):
     response = requests.post(url, headers=headers, json=data)
     print(f"[WhatsApp API] To: {numero} | Status: {response.status_code} | Body: {response.text}")
 
-def generar_menu():
-    menu = "Nuestros productos:\n\n"
-    for numero, producto in PRODUCTOS.items():
-        menu += f"{numero}. {producto['nombre']} - ${producto['precio']}\n"
-    menu += "\nResponde con el número del producto que deseas ordenar."
-    return menu
 
+# =========================
+# ENVIAR IMAGEN CON CAPTION
+# =========================
+def enviar_imagen(numero, url_imagen, caption=""):
+    numero = normalizar_numero(numero)
+    url = f"https://graph.facebook.com/v18.0/{PHONE_NUMBER_ID}/messages"
+
+    headers = {
+        "Authorization": f"Bearer {ACCESS_TOKEN}",
+        "Content-Type": "application/json"
+    }
+
+    data = {
+        "messaging_product": "whatsapp",
+        "to": numero,
+        "type": "image",
+        "image": {
+            "link": url_imagen,
+            "caption": caption
+        }
+    }
+
+    response = requests.post(url, headers=headers, json=data)
+    print(f"[WhatsApp API - Imagen] To: {numero} | Status: {response.status_code} | Body: {response.text}")
+
+
+# =========================
+# ENVIAR CATALOGO COMPLETO
+# =========================
+def enviar_catalogo(numero):
+    enviar_mensaje(numero, "🌸 Aquí está nuestro catálogo de ramos disponibles:")
+
+    for clave, producto in PRODUCTOS.items():
+        imagen_url = producto.get("imagen")
+        caption = f"{clave}. {producto['nombre']} - ${producto['precio']}"
+        if imagen_url:
+            enviar_imagen(numero, imagen_url, caption=caption)
+        else:
+            enviar_mensaje(numero, caption)
+
+    enviar_mensaje(numero, "¿Cuál te gustó? Responde con el número del ramo 💐")
+
+
+# =========================
+# MENU DE COLORES
+# =========================
+def enviar_menu_colores(numero, colores):
+    menu = "🎨 ¿En qué color lo prefieres?\n\n"
+    for i, color in enumerate(colores, 1):
+        menu += f"{i}️⃣ {color}\n"
+    menu += f"{len(colores) + 1}️⃣ El del catálogo está bien 👌"
+    enviar_mensaje(numero, menu)
+
+
+# =========================
+# HELPERS DIRECCION
+# =========================
 def valor_normalizado(valor):
     if valor is None:
         return ""
@@ -102,9 +154,7 @@ def valor_normalizado(valor):
 
 def extraer_componentes_direccion(lat, lon):
     url = f"https://nominatim.openstreetmap.org/reverse?lat={lat}&lon={lon}&format=jsonv2&addressdetails=1"
-    headers = {
-        "User-Agent": "BotWhatsapp/1.0"
-    }
+    headers = {"User-Agent": "BotWhatsapp/1.0"}
     try:
         response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
@@ -153,7 +203,7 @@ def solicitar_siguiente_campo(numero, estado):
         direccion_completa = formatear_direccion(estado["direccion"])
         estado["paso"] = "confirmando_direccion"
         enviar_mensaje(numero, f"Esta es la direccion completa:\n{direccion_completa}")
-        enviar_mensaje(numero, "Confirmas que es correcta? (si/no)")
+        enviar_mensaje(numero, "¿Confirmas que es correcta? (si/no)")
         return
 
     siguiente = faltantes[0]
@@ -162,20 +212,73 @@ def solicitar_siguiente_campo(numero, estado):
     enviar_mensaje(numero, f"Me falta este dato de tu direccion: {obtener_nombre_campo(siguiente)}. Por favor escribelo.")
 
 
+# =========================
+# MANEJAR ESTADOS
+# =========================
 def manejar_texto_segun_estado(numero, texto, estado):
     paso = estado.get("paso")
-    
+
+    # --- SELECCIONANDO PRODUCTO DEL CATALOGO ---
     if paso == "seleccionando_producto":
         producto = PRODUCTOS.get(texto.strip())
         if producto:
-            estado["pedido"] = f"{producto['nombre']} - ${producto['precio']}"
-            estado["paso"] = None
-            enviar_mensaje(numero, f"Anotado: {estado['pedido']}")
-            enviar_mensaje(numero, MENSAJES.get("pedido_recibido", ""))
+            estado["producto_seleccionado"] = texto.strip()
+            colores = producto.get("colores", [])
+
+            if colores:
+                # El ramo tiene opciones de color, preguntar
+                estado["paso"] = "seleccionando_color"
+                imagen_url = producto.get("imagen")
+                if imagen_url:
+                    enviar_imagen(
+                        numero,
+                        imagen_url,
+                        caption=f"Seleccionaste: {producto['nombre']} - ${producto['precio']}"
+                    )
+                enviar_menu_colores(numero, colores)
+            else:
+                # Sin opciones de color, confirmar directo
+                estado["pedido"] = f"{producto['nombre']} - ${producto['precio']}"
+                estado["paso"] = None
+                imagen_url = producto.get("imagen")
+                if imagen_url:
+                    enviar_imagen(
+                        numero,
+                        imagen_url,
+                        caption=f"Seleccionaste: {producto['nombre']} - ${producto['precio']} ✅"
+                    )
+                enviar_mensaje(numero, MENSAJES.get("pedido_recibido", ""))
         else:
-            enviar_mensaje(numero, "Por favor responde con el número del producto.")
+            enviar_mensaje(numero, "Por favor responde con el número del ramo (1 al 5).")
         return True
 
+    # --- SELECCIONANDO COLOR ---
+    elif paso == "seleccionando_color":
+        clave_producto = estado.get("producto_seleccionado")
+        producto = PRODUCTOS.get(clave_producto, {})
+        colores = producto.get("colores", [])
+
+        try:
+            opcion = int(texto.strip())
+        except ValueError:
+            enviar_mensaje(numero, f"Por favor responde con un número del 1 al {len(colores) + 1}.")
+            return True
+
+        if opcion == len(colores) + 1:
+            color_elegido = "Color del catálogo"
+        elif 1 <= opcion <= len(colores):
+            color_elegido = colores[opcion - 1]
+        else:
+            enviar_mensaje(numero, f"Por favor responde con un número del 1 al {len(colores) + 1}.")
+            return True
+
+        estado["pedido"] = f"{producto['nombre']} ({color_elegido}) - ${producto['precio']}"
+        estado["paso"] = None
+        enviar_mensaje(numero, f"Perfecto, anotamos: *{producto['nombre']}* en *{color_elegido}* 🌸")
+        enviar_mensaje(numero, MENSAJES.get("pedido_recibido", ""))
+        return True
+
+    # --- COMPLETANDO DIRECCION MANUALMENTE ---
     elif paso == "completando_direccion":
         campo = estado.get("campo_pendiente")
         if campo:
@@ -183,6 +286,7 @@ def manejar_texto_segun_estado(numero, texto, estado):
         solicitar_siguiente_campo(numero, estado)
         return True
 
+    # --- CONFIRMANDO DIRECCION ---
     elif paso == "confirmando_direccion":
         respuesta = texto.strip().lower()
 
@@ -203,10 +307,11 @@ def manejar_texto_segun_estado(numero, texto, estado):
             enviar_mensaje(numero, "Escribe tu calle.")
             return True
 
-        enviar_mensaje(numero, "Responde con si o no para confirmar la direccion.")
+        enviar_mensaje(numero, "Responde con *si* o *no* para confirmar la direccion.")
         return True
 
     return False
+
 
 # =========================
 # OBTENER DIRECCION DESDE COORDENADAS
@@ -215,6 +320,7 @@ def obtener_direccion(lat, lon):
     componentes = extraer_componentes_direccion(lat, lon)
     direccion = formatear_direccion(componentes)
     return direccion or "Direccion no encontrada", componentes
+
 
 # =========================
 # GUARDAR PEDIDO EN EXCEL
@@ -230,9 +336,9 @@ def guardar_pedido(numero, pedido, direccion):
 
     wb = load_workbook(archivo)
     ws = wb.active
-
     ws.append([numero, pedido, direccion])
     wb.save(archivo)
+
 
 # =========================
 # WEBHOOK
@@ -274,17 +380,28 @@ def webhook():
         # TEXTO
         if mensaje.get("type") == "text":
             texto_original = mensaje.get("text", {}).get("body", "")
-            texto = texto_original.lower()
+            texto = texto_original.lower().strip()
 
+            # Primero revisar si hay un estado activo
             if manejar_texto_segun_estado(numero, texto_original, estado_usuario):
                 return "ok", 200
 
+            # Menu principal
             if any(p in texto for p in PALABRAS.get("saludo", [])):
                 enviar_mensaje(numero, MENSAJES.get("bienvenida", ""))
 
             elif any(p in texto for p in PALABRAS.get("pedido", [])):
                 estado_usuario["paso"] = "seleccionando_producto"
-                enviar_mensaje(numero, generar_menu())
+                enviar_catalogo(numero)
+
+            elif any(p in texto for p in PALABRAS.get("como_agendar", [])):
+                enviar_mensaje(numero, MENSAJES.get("como_agendar", ""))
+
+            elif any(p in texto for p in PALABRAS.get("pago", [])):
+                enviar_mensaje(numero, MENSAJES.get("metodos_pago", ""))
+
+            elif any(p in texto for p in PALABRAS.get("rastrear", [])):
+                enviar_mensaje(numero, MENSAJES.get("rastrear", ""))
 
             elif any(p in texto for p in PALABRAS.get("domicilio", [])):
                 direccion_guardada = estado_usuario.get("direccion")
@@ -300,7 +417,7 @@ def webhook():
                 enviar_mensaje(numero, MENSAJES.get("recoger_confirmado", ""))
 
             else:
-                enviar_mensaje(numero, "No entendi tu mensaje")         
+                enviar_mensaje(numero, "No entendí tu mensaje 😅\n\nEscribe *hola* para ver el menú principal 🌸")
 
         # UBICACION
         elif mensaje.get("type") == "location":
@@ -324,6 +441,7 @@ def webhook():
         print("Error:", e)
 
     return "ok", 200
+
 
 # =========================
 # MAIN
