@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Panel Admin — Ferrer Flower Boutique</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --verde: #2d6a4f; --verde-claro: #40916c; --verde-suave: #d8f3dc;
+      --rosa: #f4a5ae; --crema: #fdf8f0; --cafe: #3d2b1f;
+      --gris: #6b7280; --borde: #e8e0d5; --blanco: #ffffff;
+      --rojo: #e63946; --sombra: 0 4px 24px rgba(45,106,79,0.10);
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--crema); color: var(--cafe); min-height: 100vh; }
+
+    /* LOGIN */
+    #login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #2d6a4f 0%, #40916c 50%, #74c69d 100%); }
+    .login-card { background: white; border-radius: 24px; padding: 48px 40px; width: 100%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: slideUp 0.5s ease; }
+    @keyframes slideUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+    .login-logo { text-align: center; margin-bottom: 32px; }
+    .login-logo .flor { font-size: 48px; display: block; margin-bottom: 8px; }
+    .login-logo h1 { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--verde); }
+    .login-logo p { font-size: 13px; color: var(--gris); margin-top: 4px; }
+    .campo { margin-bottom: 16px; }
+    .campo label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+    .campo input { width: 100%; padding: 12px 16px; border: 1.5px solid var(--borde); border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--cafe); background: var(--crema); outline: none; transition: border-color 0.2s; }
+    .campo input:focus { border-color: var(--verde-claro); background: white; }
+    .btn-primary { width: 100%; padding: 14px; background: var(--verde); color: white; border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+    .btn-primary:hover { background: var(--verde-claro); }
+    .error-msg { background: #fee2e2; color: var(--rojo); padding: 10px 14px; border-radius: 10px; font-size: 13px; margin-top: 12px; display: none; }
+
+    /* PANEL */
+    #panel { display: none; min-height: 100vh; }
+    .sidebar { position: fixed; top: 0; left: 0; width: 240px; height: 100vh; background: var(--verde); padding: 32px 0; display: flex; flex-direction: column; z-index: 100; }
+    .sidebar-logo { padding-bottom: 0 24px 8px; border-bottom: 1px solid rgba(255,255,255,0.15); }
+    .sidebar-logo span { font-size: 28px; }
+    .sidebar-logo h2 { font-family: 'Playfair Display', serif; color: white; font-size: 16px; margin-top: 8px; }
+    .sidebar-logo p { color: rgba(255,255,255,0.6); font-size: 12px; margin-top: 2px; }
+    .nav-menu { padding: 24px 0; flex: 1; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 24px; color: rgba(255,255,255,0.75); cursor: pointer; transition: all 0.2s; font-size: 14px; border-left: 3px solid transparent; }
+    .nav-item:hover { background: rgba(255,255,255,0.1); color: white; }
+    .nav-item.active { background: rgba(255,255,255,0.15); color: white; border-left-color: var(--rosa); font-weight: 500; }
+    .nav-item .icon { font-size: 18px; width: 24px; text-align: center; }
+    .sidebar-footer { padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.15); }
+    .btn-logout { width: 100%; padding: 10px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; }
+    .btn-logout:hover { background: rgba(255,255,255,0.2); color: white; }
+    .main-content { margin-left: 240px; padding: 40px; min-height: 100vh; }
+    .page { display: none; animation: fadeIn 0.3s ease; }
+    .page.active { display: block; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    .page-header { margin-bottom: 32px; display: flex; align-items: center; justify-content: space-between; }
+    .page-header-text h1 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; }
+    .page-header-text p { color: var(--gris); font-size: 14px; margin-top: 4px; }
+
+    /* CARDS */
+    .card { background: white; border-radius: 16px; padding: 24px; box-shadow: var(--sombra); border: 1px solid var(--borde); margin-bottom: 20px; }
+    .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; }
+
+    /* STATS */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; margin-bottom: 32px; }
+    .stat-card { background: white; border-radius: 16px; padding: 20px 24px; border: 1px solid var(--borde); box-shadow: var(--sombra); }
+    .stat-icon { font-size: 28px; margin-bottom: 8px; }
+    .stat-value { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--verde); }
+    .stat-label { font-size: 12px; color: var(--gris); margin-top: 2px; }
+
+    /* TABLA PEDIDOS */
+    .tabla-wrapper { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; padding: 10px 14px; background: var(--verde-suave); color: var(--verde); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+    th:first-child { border-radius: 10px 0 0 10px; }
+    th:last-child { border-radius: 0 10px 10px 0; }
+    td { padding: 12px 14px; border-bottom: 1px solid var(--borde); color: var(--cafe); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--crema); }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .badge-domicilio { background: #dbeafe; color: #1d4ed8; }
+    .badge-recoger { background: var(--verde-suave); color: var(--verde); }
+    .estado-select { padding: 6px 10px; border: 1.5px solid var(--borde); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; color: var(--cafe); background: var(--crema); cursor: pointer; outline: none; min-width: 180px; }
+    .estado-select.espera    { background: #fef9c3; border-color: #facc15; color: #854d0e; }
+    .estado-select.anticipo  { background: #dcfce7; border-color: #4ade80; color: #166534; }
+    .estado-select.prep      { background: #e0f2fe; border-color: #38bdf8; color: #0c4a6e; }
+    .estado-select.camino    { background: #f0f4ff; border-color: #818cf8; color: #3730a3; }
+    .estado-select.listo     { background: var(--verde-suave); border-color: var(--verde-claro); color: var(--verde); }
+    .estado-select.entregado { background: #f0fdf4; border-color: #86efac; color: #166534; }
+    .estado-select.liquidado { background: #f7fee7; border-color: #a3e635; color: #3f6212; }
+    .estado-select.cancelado { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
+
+    /* PRODUCTOS */
+    .productos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+    .producto-card { background: white; border-radius: 16px; border: 1.5px solid var(--borde); overflow: hidden; transition: box-shadow 0.2s; position: relative; }
+    .producto-card:hover { box-shadow: var(--sombra); }
+    .producto-img { width: 100%; height: 160px; background: var(--verde-suave); display: flex; align-items: center; justify-content: center; font-size: 48px; overflow: hidden; position: relative; }
+    .producto-img img { width: 100%; height: 100%; object-fit: cover; }
+    .producto-body { padding: 16px; }
+    .producto-num { font-size: 11px; font-weight: 600; color: var(--verde-claro); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .producto-campo { margin-bottom: 10px; }
+    .producto-campo label { display: block; font-size: 11px; font-weight: 500; color: var(--gris); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .producto-campo input { width: 100%; padding: 8px 12px; border: 1.5px solid var(--borde); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--cafe); background: var(--crema); outline: none; transition: border-color 0.2s; }
+    .producto-campo input:focus { border-color: var(--verde-claro); background: white; }
+
+    /* COLORES */
+    .colores-section { margin-top: 10px; }
+    .colores-section label { display: block; font-size: 11px; font-weight: 500; color: var(--gris); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .colores-lista-edit { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; min-height: 28px; }
+    .color-tag-edit { display: flex; align-items: center; gap: 4px; background: var(--verde-suave); color: var(--verde); padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+    .color-tag-edit button { background: none; border: none; cursor: pointer; color: var(--verde); font-size: 14px; line-height: 1; padding: 0; margin-left: 2px; opacity: 0.7; }
+    .color-tag-edit button:hover { opacity: 1; }
+    .color-add-row { display: flex; gap: 6px; }
+    .color-add-row input { flex: 1; padding: 6px 10px; border: 1.5px solid var(--borde); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--cafe); background: var(--crema); outline: none; }
+    .color-add-row input:focus { border-color: var(--verde-claro); background: white; }
+    .btn-add-color { padding: 6px 12px; background: var(--verde-suave); color: var(--verde); border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+    .btn-add-color:hover { background: var(--verde-claro); color: white; }
+
+    /* OPCIONES CANTIDAD */
+    .opcion-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .opcion-row input { flex: 1; padding: 6px 10px; border: 1.5px solid var(--borde); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--cafe); background: var(--crema); outline: none; }
+    .opcion-row input:focus { border-color: var(--verde-claro); background: white; }
+    .opcion-label { font-size: 11px; color: var(--gris); min-width: 50px; }
+
+    /* BOTONES */
+    .btn-save { padding: 11px 24px; background: var(--verde); color: white; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+    .btn-save:hover { background: var(--verde-claro); }
+    .btn-danger { padding: 7px 12px; background: #fee2e2; color: var(--rojo); border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+    .btn-danger:hover { background: #fca5a5; color: white; }
+    .btn-add { background: var(--verde-suave); color: var(--verde); border: 1.5px dashed var(--verde-claro); border-radius: 16px; padding: 20px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; width: 100%; text-align: center; transition: all 0.2s; }
+    .btn-add:hover { background: var(--verde-claro); color: white; border-color: var(--verde-claro); }
+    .btn-icon { background: #fee2e2; color: var(--rojo); border: none; border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
+
+    /* ELIMINAR PRODUCTO */
+    .btn-eliminar-prod { position: absolute; top: 8px; right: 8px; background: rgba(230,57,70,0.9); color: white; border: none; border-radius: 8px; padding: 5px 10px; font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .btn-eliminar-prod:hover { background: var(--rojo); }
+
+    /* MENSAJES */
+    .mensaje-campo { margin-bottom: 20px; }
+    .mensaje-campo label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+    .mensaje-campo textarea { width: 100%; padding: 12px 16px; border: 1.5px solid var(--borde); border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--cafe); background: var(--crema); resize: vertical; min-height: 80px; outline: none; transition: border-color 0.2s; line-height: 1.6; }
+    .mensaje-campo textarea:focus { border-color: var(--verde-claro); background: white; }
+
+    /* NEGOCIO */
+    .negocio-campo { margin-bottom: 16px; }
+    .negocio-campo label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+    .negocio-campo input { width: 100%; padding: 10px 14px; border: 1.5px solid var(--borde); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--cafe); background: var(--crema); outline: none; transition: border-color 0.2s; }
+    .negocio-campo input:focus { border-color: var(--verde-claro); background: white; }
+    .horarios-lista { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+    .horario-row { display: flex; gap: 8px; align-items: center; }
+    .horario-row input { flex: 1; padding: 8px 12px; border: 1.5px solid var(--borde); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--cafe); background: var(--crema); outline: none; }
+    .horario-row input:focus { border-color: var(--verde-claro); background: white; }
+    .divider { border: none; border-top: 1px solid var(--borde); margin: 20px 0; }
+
+    /* MODAL NUEVO PRODUCTO */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; display: none; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: white; border-radius: 20px; padding: 32px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; animation: fadeIn 0.2s ease; }
+    .modal h2 { font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 20px; color: var(--cafe); }
+    .modal-campo { margin-bottom: 14px; }
+    .modal-campo label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 5px; }
+    .modal-campo input { width: 100%; padding: 10px 14px; border: 1.5px solid var(--borde); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--cafe); background: var(--crema); outline: none; }
+    .modal-campo input:focus { border-color: var(--verde-claro); background: white; }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+    .btn-cancelar { padding: 10px 20px; background: #f3f4f6; color: var(--gris); border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; cursor: pointer; }
+
+    .toast { position: fixed; bottom: 32px; right: 32px; background: var(--verde); color: white; padding: 14px 20px; border-radius: 12px; font-size: 14px; font-weight: 500; box-shadow: 0 8px 24px rgba(45,106,79,0.3); display: none; z-index: 9999; }
+    .empty-state { text-align: center; padding: 48px; color: var(--gris); }
+    .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div style="background:#F5EFE6;border-radius:12px;padding:16px 24px;display:inline-block;margin-bottom:16px;">
+        <img src="https://res.cloudinary.com/dyx5xyip4/image/upload/v1778570759/WhatsApp_Image_2026-05-11_at_11.23.45_PM_-_Editado_bnwbt3.png" alt="Ferrer Flower Boutique" style="height:180px;display:block;"/>
+      </div>
+      <p style="font-size:13px;color:var(--gris);margin-top:4px;">Panel de administración</p>
+    </div>
+    <div class="campo"><label>Usuario</label><input type="text" id="inp-user" placeholder="admin"/></div>
+    <div class="campo"><label>Contraseña</label><input type="password" id="inp-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter') doLogin()"/></div>
+    <button class="btn-primary" onclick="doLogin()">Entrar al panel</button>
+    <div class="error-msg" id="login-error">Usuario o contraseña incorrectos</div>
+  </div>
+</div>
+
+<!-- MODAL NUEVO PRODUCTO -->
+<div class="modal-overlay" id="modal-nuevo">
+  <div class="modal">
+    <h2>🌹 Nuevo producto</h2>
+    <div class="modal-campo"><label>Nombre del ramo</label><input type="text" id="new-nombre" placeholder="Ej. Ramo de Peonías"/></div>
+    <div class="modal-campo"><label>URL de imagen (Cloudinary)</label><input type="text" id="new-imagen" placeholder="https://res.cloudinary.com/..."/></div>
+    <div class="modal-campo">
+      <label>Colores disponibles</label>
+      <div class="colores-lista-edit" id="new-colores-lista"></div>
+      <div class="color-add-row">
+        <input type="text" id="new-color-input" placeholder="Ej. Rojo" onkeydown="if(event.key==='Enter') agregarColorNuevo()"/>
+        <button class="btn-add-color" onclick="agregarColorNuevo()">+ Agregar</button>
+      </div>
+    </div>
+    <div class="modal-campo">
+      <label>Opciones de cantidad y precio</label>
+      <div id="new-opciones-lista">
+        <div class="opcion-row">
+          <span class="opcion-label">Opción 1</span>
+          <input type="number" placeholder="Cantidad" id="new-op-0-cant"/>
+          <input type="number" placeholder="Precio $" id="new-op-0-precio"/>
+        </div>
+      </div>
+      <button class="btn-add-color" style="margin-top:8px;" onclick="agregarOpcionNuevo()">+ Agregar opción</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn-save" onclick="guardarNuevoProducto()">💾 Guardar producto</button>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL -->
+<div id="panel">
+  <div class="sidebar">
+    <div class="sidebar-logo" style="text-align:center;"><img src="https://res.cloudinary.com/dyx5xyip4/image/upload/v1778570759/WhatsApp_Image_2026-05-11_at_11.23.45_PM_-_Editado_bnwbt3.png" alt="Ferrer Flower Boutique" style="height:260px;display:block;filter:invert(1);margin-bottom: -20px;"/></div>
+    <nav class="nav-menu">
+      <div class="nav-item active" onclick="showPage('pedidos', this)"><span class="icon">📋</span> Pedidos</div>
+      <div class="nav-item" onclick="showPage('productos', this)"><span class="icon">🌹</span> Productos</div>
+      <div class="nav-item" onclick="showPage('mensajes', this)"><span class="icon">💬</span> Mensajes del bot</div>
+      <div class="nav-item" onclick="showPage('negocio', this)"><span class="icon">⚙️</span> Configuración</div>
+    </nav>
+    <div class="sidebar-footer"><button class="btn-logout" onclick="doLogout()">🚪 Cerrar sesión</button></div>
+  </div>
+
+  <div class="main-content">
+
+    <!-- PEDIDOS -->
+    <div class="page active" id="page-pedidos">
+      <div class="page-header">
+        <div class="page-header-text"><h1>📋 Pedidos</h1><p>Gestiona y actualiza el estado de cada pedido</p></div>
+        <button class="btn-save" onclick="cargarPedidos()">🔄 Actualizar</button>
+      </div>
+      <div class="stats-grid" id="stats-grid"></div>
+      <div class="card">
+        <div class="tabla-wrapper">
+          <table>
+            <thead><tr><th>Número</th><th>Pedido</th><th>Entrega</th><th>Dirección</th><th>Fecha</th><th>Hora</th><th>Receptor</th><th>Tel.</th><th>Dedicatoria</th><th>Observaciones</th><th>Envío / Notificar</th><th>Notas internas</th><th>Estado</th></tr></thead>
+            <tbody id="tbody-pedidos"><tr><td colspan="13"><div class="empty-state"><div class="icon">🌸</div><p>Cargando...</p></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRODUCTOS -->
+    <div class="page" id="page-productos">
+      <div class="page-header">
+        <div class="page-header-text"><h1>🌹 Productos</h1><p>Agrega, edita o elimina ramos del catálogo</p></div>
+        <button class="btn-save" onclick="guardarProductos()">💾 Guardar cambios</button>
+      </div>
+      <div class="productos-grid" id="productos-grid">
+        <div class="empty-state"><div class="icon">🌸</div><p>Cargando...</p></div>
+      </div>
+      <div style="margin-top:20px;">
+        <button class="btn-add" onclick="abrirModal()">+ Agregar nuevo ramo</button>
+      </div>
+    </div>
+
+    <!-- MENSAJES -->
+    <div class="page" id="page-mensajes">
+      <div class="page-header">
+        <div class="page-header-text"><h1>💬 Mensajes del bot</h1><p>Edita los textos automáticos</p></div>
+        <button class="btn-save" onclick="guardarMensajes()">💾 Guardar</button>
+      </div>
+      <div class="card"><div id="mensajes-form"></div></div>
+    </div>
+
+    <!-- NEGOCIO -->
+    <div class="page" id="page-negocio">
+      <div class="page-header">
+        <div class="page-header-text"><h1>⚙️ Configuración</h1><p>Datos del negocio y horarios</p></div>
+        <button class="btn-save" onclick="guardarNegocio()">💾 Guardar</button>
+      </div>
+      <div class="card">
+        <div class="negocio-campo"><label>Nombre del negocio</label><input type="text" id="neg-nombre"/></div>
+        <div class="negocio-campo"><label>Archivo de pedidos</label><input type="text" id="neg-archivo"/></div>
+        <div class="negocio-campo"><label>Límite de pedidos por hora</label><input type="number" id="neg-limite" min="1"/></div>
+        <div class="negocio-campo"><label>Costo de envío área metropolitana ($)</label><input type="number" id="neg-envio" min="0"/></div>
+        <hr class="divider"/>
+        <p style="font-family:'Playfair Display',serif;font-size:18px;font-weight:600;margin-bottom:12px;">Horarios disponibles</p>
+        <p style="font-size:13px;color:var(--gris);margin-bottom:12px;">Formato: 09:00-11:00</p>
+        <div class="horarios-lista" id="horarios-lista"></div>
+        <button class="btn-add-color" style="margin-top:8px;" onclick="agregarHorario()">+ Agregar horario</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const ESTADOS = [
+  { valor: "⏳ En espera de anticipo", clase: "espera" },
+  { valor: "✅ Anticipo recibido",      clase: "anticipo" },
+  { valor: "🌸 En preparación",         clase: "prep" },
+  { valor: "🚚 En camino",              clase: "camino" },
+  { valor: "🏪 Listo para recoger",     clase: "listo" },
+  { valor: "✔️ Entregado",              clase: "entregado" },
+  { valor: "💰 Liquidado",              clase: "liquidado" },
+  { valor: "❌ Cancelado",              clase: "cancelado" },
+];
+
+const LABELS_MENSAJES = {
+  bienvenida: "Mensaje de bienvenida",
+  como_agendar: "Cómo agendar tu pedido",
+  metodos_pago: "Métodos de pago",
+  rastrear: "Rastrear pedido",
+  comprobante_domicilio: "Comprobante recibido (entrega a domicilio)",
+  comprobante_recoger: "Comprobante recibido (recoger en tienda)"
+};
+
+function getClaseEstado(valor) {
+  const e = ESTADOS.find(e => e.valor === valor);
+  return e ? e.clase : "espera";
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3000);
+}
+
+async function doLogin() {
+  const usuario = document.getElementById('inp-user').value.trim();
+  const password = document.getElementById('inp-pass').value.trim();
+  const res = await fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({usuario,password}) });
+  const data = await res.json();
+  if (data.ok) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('panel').style.display = 'block';
+    cargarPedidos(); cargarProductos(); cargarMensajes(); cargarNegocio();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+
+async function doLogout() {
+  await fetch('/api/logout', { method:'POST' });
+  location.reload();
+}
+
+function showPage(nombre, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + nombre).classList.add('active');
+  el.classList.add('active');
+}
+
+// ===== PEDIDOS =====
+async function cargarPedidos() {
+  const res = await fetch('/api/pedidos');
+  const pedidos = await res.json();
+  const tbody = document.getElementById('tbody-pedidos');
+  if (!pedidos.length) {
+    tbody.innerHTML = '<tr><td colspan="13"><div class="empty-state"><div class="icon">🌸</div><p>Aún no hay pedidos</p></div></td></tr>';
+    document.getElementById('stats-grid').innerHTML = '';
+    return;
+  }
+  document.getElementById('stats-grid').innerHTML = `
+    <div class="stat-card"><div class="stat-icon">📦</div><div class="stat-value">${pedidos.length}</div><div class="stat-label">Total pedidos</div></div>
+    <div class="stat-card"><div class="stat-icon">🚚</div><div class="stat-value">${pedidos.filter(p=>p['Tipo Entrega']==='domicilio').length}</div><div class="stat-label">A domicilio</div></div>
+    <div class="stat-card"><div class="stat-icon">🏪</div><div class="stat-value">${pedidos.filter(p=>p['Tipo Entrega']==='recoger').length}</div><div class="stat-label">Para recoger</div></div>
+    <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-value">${pedidos.filter(p=>!p['Estado']||p['Estado'].includes('espera')).length}</div><div class="stat-label">Sin anticipo</div></div>
+  `;
+  tbody.innerHTML = pedidos.map(p => {
+    const estadoActual = p['Estado'] || '⏳ En espera de anticipo';
+    const claseEstado = getClaseEstado(estadoActual);
+    const opcionesEstado = ESTADOS.map(e => `<option value="${e.valor}" ${e.valor===estadoActual?'selected':''}>${e.valor}</option>`).join('');
+    return `<tr>
+      <td style="font-size:11px;color:var(--gris);">${p['Numero']||'-'}</td>
+      <td><strong>${p['Pedido']||'-'}</strong></td>
+      <td><span class="badge badge-${p['Tipo Entrega']==='domicilio'?'domicilio':'recoger'}">${p['Tipo Entrega']||'-'}</span></td>
+      <td style="max-width:140px;font-size:12px;">${p['Direccion']||'Recoger en tienda'}</td>
+      <td>${p['Fecha']||'-'}</td>
+      <td>${p['Hora']||'-'}</td>
+      <td>${p['Nombre Receptor']||'-'}</td>
+      <td>${p['Tel. Receptor']||'-'}</td>
+      <td style="max-width:120px;font-size:12px;">${p['Dedicatoria']||'-'}</td>
+      <td style="max-width:120px;font-size:12px;">${p['Observaciones']||'-'}</td>
+      <td>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input type="number" placeholder="$Envío" value="${p['Costo Envio']||''}" id="envio-${p['_fila']}" style="width:80px;padding:5px 8px;border:1.5px solid var(--borde);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:12px;outline:none;" onchange="actualizarEnvio(${p['_fila']}, this.value)"/>
+            <button onclick="notificarCliente(${p['_fila']}, '${p['Numero']||''}', '${p['Pedido']||''}', '${p['Tipo Entrega']||''}', ${p['Precio Ramo']||0})" style="padding:5px 10px;background:var(--verde-suave);color:var(--verde);border:none;border-radius:6px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;white-space:nowrap;">📲 Notificar</button>
+          </div>
+        </div>
+      </td>
+      <td>
+        <textarea id="nota-${p['_fila']}" style="width:120px;height:50px;padding:5px 8px;border:1.5px solid var(--borde);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:11px;resize:none;outline:none;background:var(--crema);" placeholder="Nota interna..." onblur="guardarNota(${p['_fila']}, this.value)">${p['Notas Internas']||''}</textarea>
+      </td>
+      <td><select class="estado-select ${claseEstado}" onchange="cambiarEstado(${p['_fila']}, this)">${opcionesEstado}</select></td>
+    </tr>`;
+  }).join('');
+}
+
+async function guardarNota(fila, valor) {
+  await fetch('/api/pedidos/nota', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ fila, nota: valor })
+  });
+  showToast('📝 Nota guardada');
+}
+
+async function actualizarEnvio(fila, valor) {
+  await fetch('/api/pedidos/envio', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ fila, costo_envio: parseFloat(valor) || 0 })
+  });
+}
+
+async function notificarCliente(fila, numero, pedido, tipoEntrega, precioRamo) {
+  const inputEnvio = document.getElementById(`envio-${fila}`);
+  const costoEnvio = parseFloat(inputEnvio?.value) || 0;
+
+  if (tipoEntrega === 'domicilio' && costoEnvio === 0) {
+    if (!confirm('El costo de envío está en $0. ¿Deseas notificar de todas formas?')) return;
+  }
+
+  const res = await fetch('/api/pedidos/notificar', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ fila, numero, pedido, tipo_entrega: tipoEntrega, precio_ramo: precioRamo, costo_envio: costoEnvio })
+  });
+  const data = await res.json();
+  showToast(data.ok ? '📲 Cliente notificado' : '❌ Error al notificar');
+}
+
+async function cambiarEstado(fila, selectEl) {
+  const nuevoEstado = selectEl.value;
+  selectEl.className = `estado-select ${getClaseEstado(nuevoEstado)}`;
+  const res = await fetch('/api/pedidos/estado', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({fila, estado: nuevoEstado}) });
+  const data = await res.json();
+  showToast(data.ok ? '✅ Estado actualizado' : '❌ Error al guardar');
+}
+
+// ===== PRODUCTOS =====
+let productosData = {};
+// colores por clave de producto (en memoria mientras edita)
+let coloresPorProducto = {};
+
+async function cargarProductos() {
+  const res = await fetch('/api/productos');
+  productosData = await res.json();
+  coloresPorProducto = {};
+  Object.entries(productosData).forEach(([clave, p]) => {
+    coloresPorProducto[clave] = [...(p.colores || [])];
+  });
+  renderProductos();
+}
+
+function renderProductos() {
+  const grid = document.getElementById('productos-grid');
+  if (!Object.keys(productosData).length) {
+    grid.innerHTML = '<div class="empty-state"><div class="icon">🌸</div><p>No hay productos aún</p></div>';
+    return;
+  }
+  grid.innerHTML = Object.entries(productosData).map(([clave, p]) => {
+    const colores = coloresPorProducto[clave] || [];
+    const coloresHTML = colores.map((c, i) => `
+      <span class="color-tag-edit">
+        ${c}
+        <button onclick="quitarColor('${clave}', ${i})" title="Quitar">×</button>
+      </span>`).join('');
+
+    const opciones = p.opciones_cantidad || [];
+    const opcionesHTML = opciones.map((op, i) => `
+      <div class="opcion-row" id="op-row-${clave}-${i}">
+        <span class="opcion-label">Op. ${i+1}</span>
+        <input type="number" placeholder="Cant." value="${op.cantidad}" id="prod-${clave}-op-${i}-cant" style="max-width:75px;"/>
+        <input type="number" placeholder="$" value="${op.precio}" id="prod-${clave}-op-${i}-precio" style="max-width:75px;"/>
+        <button onclick="eliminarOpcion('${clave}', ${i})" style="background:#fee2e2;color:var(--rojo);border:none;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:13px;">🗑</button>
+      </div>`).join('');
+
+    return `
+    <div class="producto-card">
+      <div class="producto-img">
+        ${p.imagen ? `<img src="${p.imagen}" alt="${p.nombre}" onerror="this.parentElement.innerHTML='🌸'"/>` : '🌸'}
+        <button class="btn-eliminar-prod" onclick="eliminarProducto('${clave}')">🗑️ Eliminar</button>
+      </div>
+      <div class="producto-body">
+        <div class="producto-num" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Ramo ${clave}</span>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:12px;">
+            <input type="checkbox" id="prod-${clave}-activo" ${p.activo !== false ? 'checked' : ''} onchange="toggleActivo('${clave}', this.checked)" style="width:14px;height:14px;cursor:pointer;accent-color:var(--verde);"/>
+            <span style="color:var(--gris);">${p.activo !== false ? 'Activo' : 'Inactivo'}</span>
+          </label>
+        </div>
+        <div class="producto-campo"><label>Nombre</label><input type="text" id="prod-${clave}-nombre" value="${p.nombre||''}"/></div>
+        <div class="producto-campo"><label>URL de imagen</label><input type="text" id="prod-${clave}-imagen" value="${p.imagen||''}" placeholder="https://..."/></div>
+        <div class="colores-section">
+          <label>Colores disponibles</label>
+          <div class="colores-lista-edit" id="colores-lista-${clave}">${coloresHTML}</div>
+          <div class="color-add-row">
+            <input type="text" id="color-input-${clave}" placeholder="Ej. Rojo" onkeydown="if(event.key==='Enter') agregarColor('${clave}')"/>
+            <button class="btn-add-color" onclick="agregarColor('${clave}')">+ Agregar</button>
+          </div>
+        </div>
+        ${opciones.length ? `
+        <div class="producto-campo" style="margin-top:10px;">
+          <label>Opciones cantidad / precio</label>
+          <div id="opciones-wrap-${clave}">${opcionesHTML}</div>
+          <button onclick="agregarOpcion('${clave}')" style="margin-top:6px;padding:5px 14px;background:var(--verde-suave);color:var(--verde);border:none;border-radius:6px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;">+ Agregar opción</button>
+        </div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function agregarColor(clave) {
+  const input = document.getElementById(`color-input-${clave}`);
+  const valor = input.value.trim();
+  if (!valor) return;
+  coloresPorProducto[clave] = coloresPorProducto[clave] || [];
+  coloresPorProducto[clave].push(valor);
+  input.value = '';
+  renderProductos();
+}
+
+function quitarColor(clave, idx) {
+  coloresPorProducto[clave].splice(idx, 1);
+  renderProductos();
+}
+
+function eliminarProducto(clave) {
+  if (!confirm(`¿Seguro que quieres eliminar el ramo "${productosData[clave]?.nombre}"?`)) return;
+  delete productosData[clave];
+  delete coloresPorProducto[clave];
+  renderProductos();
+  showToast('🗑️ Producto eliminado — guarda los cambios');
+}
+
+function toggleActivo(clave, activo) {
+  if (productosData[clave]) {
+    productosData[clave].activo = activo;
+    const label = document.querySelector(`#prod-${clave}-activo`).nextElementSibling;
+    if (label) label.textContent = activo ? 'Activo' : 'Inactivo';
+    showToast(activo ? '✅ Producto activado' : '⏸ Producto desactivado — guarda los cambios');
+  }
+}
+
+function agregarOpcion(clave) {
+  const wrap = document.getElementById(`opciones-wrap-${clave}`);
+  const idx = wrap.querySelectorAll('.opcion-row').length;
+  const div = document.createElement('div');
+  div.className = 'opcion-row';
+  div.id = `op-row-${clave}-${idx}`;
+  div.innerHTML = `
+    <span class="opcion-label">Op. ${idx+1}</span>
+    <input type="number" placeholder="Cant." id="prod-${clave}-op-${idx}-cant" style="max-width:75px;"/>
+    <input type="number" placeholder="$" id="prod-${clave}-op-${idx}-precio" style="max-width:75px;"/>
+    <button onclick="eliminarOpcion('${clave}', ${idx})" style="background:#fee2e2;color:var(--rojo);border:none;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:13px;">🗑</button>`;
+  wrap.appendChild(div);
+  if (!productosData[clave].opciones_cantidad) productosData[clave].opciones_cantidad = [];
+  productosData[clave].opciones_cantidad.push({ cantidad: 0, precio: 0 });
+}
+
+function eliminarOpcion(clave, idx) {
+  const row = document.getElementById(`op-row-${clave}-${idx}`);
+  if (row) row.remove();
+  if (productosData[clave]?.opciones_cantidad) {
+    productosData[clave].opciones_cantidad.splice(idx, 1);
+  }
+  showToast('🗑 Opción eliminada — guarda los cambios');
+}
+
+async function guardarProductos() {
+  const updated = {};
+  Object.keys(productosData).forEach(clave => {
+    const opciones = (productosData[clave].opciones_cantidad || []).map((op, i) => ({
+      cantidad: parseInt(document.getElementById(`prod-${clave}-op-${i}-cant`)?.value) || op.cantidad,
+      precio: parseFloat(document.getElementById(`prod-${clave}-op-${i}-precio`)?.value) || op.precio
+    }));
+    updated[clave] = {
+      ...productosData[clave],
+      nombre: document.getElementById(`prod-${clave}-nombre`)?.value || productosData[clave].nombre,
+      imagen: document.getElementById(`prod-${clave}-imagen`)?.value || productosData[clave].imagen,
+      colores: coloresPorProducto[clave] || [],
+      opciones_cantidad: opciones,
+      activo: document.getElementById(`prod-${clave}-activo`)?.checked !== false
+    };
+  });
+  await fetch('/api/productos', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(updated) });
+  productosData = updated;
+  showToast('✅ Productos guardados');
+}
+
+// ===== MODAL NUEVO PRODUCTO =====
+let nuevosColores = [];
+let nuevasOpciones = 1;
+
+function abrirModal() {
+  nuevosColores = [];
+  nuevasOpciones = 1;
+  document.getElementById('new-nombre').value = '';
+  document.getElementById('new-imagen').value = '';
+  document.getElementById('new-color-input').value = '';
+  document.getElementById('new-colores-lista').innerHTML = '';
+  document.getElementById('new-opciones-lista').innerHTML = `
+    <div class="opcion-row">
+      <span class="opcion-label">Opción 1</span>
+      <input type="number" placeholder="Cantidad" id="new-op-0-cant"/>
+      <input type="number" placeholder="Precio $" id="new-op-0-precio"/>
+    </div>`;
+  document.getElementById('modal-nuevo').classList.add('open');
+}
+
+function cerrarModal() {
+  document.getElementById('modal-nuevo').classList.remove('open');
+}
+
+function agregarColorNuevo() {
+  const input = document.getElementById('new-color-input');
+  const valor = input.value.trim();
+  if (!valor) return;
+  nuevosColores.push(valor);
+  input.value = '';
+  const lista = document.getElementById('new-colores-lista');
+  lista.innerHTML = nuevosColores.map((c, i) => `
+    <span class="color-tag-edit">${c}<button onclick="quitarColorNuevo(${i})">×</button></span>`).join('');
+}
+
+function quitarColorNuevo(idx) {
+  nuevosColores.splice(idx, 1);
+  const lista = document.getElementById('new-colores-lista');
+  lista.innerHTML = nuevosColores.map((c, i) => `
+    <span class="color-tag-edit">${c}<button onclick="quitarColorNuevo(${i})">×</button></span>`).join('');
+}
+
+function agregarOpcionNuevo() {
+  const lista = document.getElementById('new-opciones-lista');
+  const idx = nuevasOpciones;
+  nuevasOpciones++;
+  const div = document.createElement('div');
+  div.className = 'opcion-row';
+  div.innerHTML = `<span class="opcion-label">Opción ${idx+1}</span><input type="number" placeholder="Cantidad" id="new-op-${idx}-cant"/><input type="number" placeholder="Precio $" id="new-op-${idx}-precio"/>`;
+  lista.appendChild(div);
+}
+
+async function guardarNuevoProducto() {
+  const nombre = document.getElementById('new-nombre').value.trim();
+  const imagen = document.getElementById('new-imagen').value.trim();
+  if (!nombre) { showToast('⚠️ Escribe el nombre del ramo'); return; }
+
+  const opciones = [];
+  for (let i = 0; i < nuevasOpciones; i++) {
+    const cant = document.getElementById(`new-op-${i}-cant`)?.value;
+    const precio = document.getElementById(`new-op-${i}-precio`)?.value;
+    if (cant && precio) opciones.push({ cantidad: parseInt(cant), precio: parseFloat(precio) });
+  }
+
+  // Obtener siguiente clave disponible
+  const claves = Object.keys(productosData).map(Number).filter(n => !isNaN(n));
+  const nuevaClave = String(claves.length ? Math.max(...claves) + 1 : 1);
+
+  productosData[nuevaClave] = { nombre, imagen, colores: [...nuevosColores], opciones_cantidad: opciones };
+  coloresPorProducto[nuevaClave] = [...nuevosColores];
+
+  await fetch('/api/productos', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(productosData) });
+  cerrarModal();
+  renderProductos();
+  showToast('✅ Producto agregado');
+}
+
+// ===== MENSAJES =====
+let mensajesData = {};
+async function cargarMensajes() {
+  const res = await fetch('/api/mensajes');
+  mensajesData = await res.json();
+  document.getElementById('mensajes-form').innerHTML = Object.entries(mensajesData).map(([clave, val]) => `
+    <div class="mensaje-campo">
+      <label>${LABELS_MENSAJES[clave] || clave}</label>
+      <textarea id="msg-${clave}">${val||''}</textarea>
+    </div>`).join('');
+}
+async function guardarMensajes() {
+  const updated = {};
+  Object.keys(mensajesData).forEach(clave => { updated[clave] = document.getElementById(`msg-${clave}`).value; });
+  await fetch('/api/mensajes', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(updated) });
+  showToast('✅ Mensajes guardados');
+}
+
+// ===== NEGOCIO =====
+let negocioData = {};
+async function cargarNegocio() {
+  const res = await fetch('/api/negocio');
+  negocioData = await res.json();
+  document.getElementById('neg-nombre').value = negocioData.nombre || '';
+  document.getElementById('neg-archivo').value = negocioData.archivo_pedidos || 'pedidos.xlsx';
+  document.getElementById('neg-limite').value = negocioData.limite_pedidos_por_hora || 5;
+  document.getElementById('neg-envio').value = negocioData.costo_envio_metro || 50;
+  renderHorarios(negocioData.horarios_disponibles || []);
+  renderDiasBloqueados(negocioData.dias_bloqueados || []);
+}
+function renderDiasBloqueados(dias) {
+  const lista = document.getElementById('dias-bloqueados-lista');
+  if (!lista) return;
+  lista.innerHTML = (dias || []).map((d, i) => `
+    <div class="horario-row" id="dia-row-${i}">
+      <input type="date" value="${d}" id="dia-${i}"/>
+      <button class="btn-icon" onclick="eliminarDia(${i})">🗑️</button>
+    </div>`).join('');
+}
+
+function agregarDiaBloqueado() {
+  const lista = document.getElementById('dias-bloqueados-lista');
+  const idx = lista.children.length;
+  const div = document.createElement('div');
+  div.className = 'horario-row'; div.id = `dia-row-${idx}`;
+  div.innerHTML = `<input type="date" id="dia-${idx}"/><button class="btn-icon" onclick="eliminarDia(${idx})">🗑️</button>`;
+  lista.appendChild(div);
+}
+
+function eliminarDia(idx) { document.getElementById(`dia-row-${idx}`)?.remove(); }
+
+function renderHorarios(horarios) {
+  document.getElementById('horarios-lista').innerHTML = horarios.map((h, i) => `
+    <div class="horario-row" id="horario-row-${i}">
+      <input type="text" value="${h}" id="horario-${i}" placeholder="09:00-11:00"/>
+      <button class="btn-icon" onclick="eliminarHorario(${i})">🗑️</button>
+    </div>`).join('');
+}
+function agregarHorario() {
+  const lista = document.getElementById('horarios-lista');
+  const idx = lista.children.length;
+  const div = document.createElement('div');
+  div.className = 'horario-row'; div.id = `horario-row-${idx}`;
+  div.innerHTML = `<input type="text" id="horario-${idx}" placeholder="09:00-11:00"/><button class="btn-icon" onclick="eliminarHorario(${idx})">🗑️</button>`;
+  lista.appendChild(div);
+}
+function eliminarHorario(idx) { document.getElementById(`horario-row-${idx}`)?.remove(); }
+async function guardarNegocio() {
+  const horarios = Array.from(document.querySelectorAll('[id^="horario-"]')).map(el => el.value.trim()).filter(Boolean);
+  const diasBloqueados = Array.from(document.querySelectorAll('[id^="dia-"]')).map(el => el.value.trim()).filter(Boolean);
+  const updated = { ...negocioData, nombre: document.getElementById('neg-nombre').value, archivo_pedidos: document.getElementById('neg-archivo').value, limite_pedidos_por_hora: parseInt(document.getElementById('neg-limite').value)||5, costo_envio_metro: parseFloat(document.getElementById('neg-envio').value)||50, horarios_disponibles: horarios };
+  await fetch('/api/negocio', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(updated) });
+  negocioData = updated;
+  showToast('✅ Configuración guardada');
+}
+</script>
+</body>
+</html>

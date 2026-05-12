@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Catálogo — Floreria Ferrer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --negro: #1a1008; --cafe-oscuro: #2c1a0e; --cafe: #6b3f2a;
+      --dorado: #c9a84c; --crema: #f7f0e6; --crema-suave: #FAF6F0;
+      --verde: #3a5c3f; --rosa: #e8b4b8; --gris: #8a7d74;
+      --borde: #e8ddd0; --blanco: #ffffff; --rojo: #c0392b;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Jost', sans-serif; background: var(--crema-suave); color: var(--negro); min-height: 100vh; overflow-x: hidden; }
+
+    /* HERO */
+    .hero { background: #E8E0D0; padding: 48px 24px 40px; text-align: center; position: relative; overflow: hidden; }
+    .hero::before { display:none; }
+    .hero-deco { font-size:12px; letter-spacing:4px; color:var(--dorado); text-transform:uppercase; margin-bottom:14px; position:relative; opacity:0; animation:fadeUp 0.8s ease 0.1s forwards; }
+    .hero h1 { font-family:'Cormorant Garamond',serif; font-size:clamp(36px,8vw,68px); font-weight:300; color:var(--crema); line-height:1.1; position:relative; opacity:0; animation:fadeUp 0.8s ease 0.2s forwards; }
+    .hero h1 em { font-style:italic; color:var(--rosa); }
+    .hero-sub { font-size:13px; color:rgba(247,240,230,0.55); margin-top:14px; letter-spacing:1px; position:relative; opacity:0; animation:fadeUp 0.8s ease 0.3s forwards; }
+    .hero-linea { width:50px; height:1px; background:var(--dorado); margin:20px auto 0; opacity:0; animation:fadeUp 0.8s ease 0.4s forwards; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(18px);} to{opacity:1;transform:translateY(0);} }
+
+    .main { max-width:1100px; margin:0 auto; padding:48px 20px 80px; }
+    .intro { text-align:center; margin-bottom:40px; opacity:0; animation:fadeUp 0.8s ease 0.5s forwards; }
+    .intro p { font-size:14px; color:var(--gris); line-height:1.7; max-width:440px; margin:0 auto; }
+
+    #vista-catalogo { display:block; }
+    #vista-pedido { display:none; }
+
+    /* GRID CATALOGO */
+    .productos-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(270px,1fr)); gap:24px; }
+    .producto-card { background:var(--blanco); border-radius:4px; overflow:hidden; box-shadow:0 2px 16px rgba(26,16,8,0.07); transition:transform 0.3s,box-shadow 0.3s; cursor:pointer; opacity:0; animation:fadeUp 0.6s ease forwards; }
+    .producto-card:nth-child(1){animation-delay:0.1s} .producto-card:nth-child(2){animation-delay:0.2s} .producto-card:nth-child(3){animation-delay:0.3s} .producto-card:nth-child(4){animation-delay:0.4s} .producto-card:nth-child(5){animation-delay:0.5s} .producto-card:nth-child(n+6){animation-delay:0.6s}
+    .producto-card:hover { transform:translateY(-5px); box-shadow:0 12px 36px rgba(26,16,8,0.13); }
+    .prod-img { width:100%; height:240px; overflow:hidden; background:var(--crema); position:relative; }
+    .prod-img img { width:100%; height:100%; object-fit:cover; transition:transform 0.5s; }
+    .producto-card:hover .prod-img img { transform:scale(1.05); }
+    .prod-img-ph { width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:56px;background:linear-gradient(135deg,var(--crema),#ede0d0); }
+    .prod-num { position:absolute;top:10px;left:10px;background:var(--cafe-oscuro);color:var(--dorado);font-size:10px;font-weight:500;letter-spacing:2px;padding:3px 9px;border-radius:2px; }
+    .prod-body { padding:18px 18px 20px; }
+    .prod-nombre { font-family:'Cormorant Garamond',serif; font-size:21px; font-weight:400; color:var(--cafe-oscuro); margin-bottom:6px; }
+    .prod-precio { font-size:13px; color:var(--gris); margin-bottom:10px; }
+    .prod-precio strong { color:var(--cafe); font-size:17px; font-weight:500; }
+    .prod-colores { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:14px; }
+    .color-chip { font-size:11px; padding:2px 9px; border-radius:20px; background:var(--crema); color:var(--cafe); border:1px solid var(--borde); }
+    .btn-elegir { display:block;width:100%;padding:12px;background:var(--verde);color:var(--blanco);text-align:center;font-family:'Jost',sans-serif;font-size:12px;font-weight:500;letter-spacing:2px;text-transform:uppercase;border-radius:2px;border:none;cursor:pointer;transition:background 0.2s; }
+    .btn-elegir:hover { background:var(--cafe); }
+
+    /* PEDIDO */
+    .pedido-header { display:flex; align-items:center; gap:12px; margin-bottom:32px; }
+    .btn-volver { background:none; border:none; cursor:pointer; font-size:22px; padding:4px; color:var(--cafe); }
+    .pedido-header h2 { font-family:'Cormorant Garamond',serif; font-size:28px; font-weight:400; color:var(--cafe-oscuro); }
+
+    .pedido-layout { display:grid; grid-template-columns:1fr 320px; gap:28px; align-items:start; }
+    @media(max-width:768px) { .pedido-layout{grid-template-columns:1fr;} }
+
+    .pedido-form { background:var(--blanco); border-radius:4px; padding:28px; box-shadow:0 2px 16px rgba(26,16,8,0.07); }
+    .ramo-preview { display:flex; gap:14px; align-items:center; padding:14px; background:var(--crema); border-radius:4px; margin-bottom:24px; }
+    .ramo-preview img { width:70px; height:70px; object-fit:cover; border-radius:4px; flex-shrink:0; }
+    .ramo-preview .info h3 { font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:400; }
+    .ramo-preview .info p { font-size:12px; color:var(--gris); margin-top:3px; }
+
+    .seccion { margin-bottom:22px; }
+    .seccion > label { display:block; font-size:11px; font-weight:500; letter-spacing:1px; text-transform:uppercase; color:var(--gris); margin-bottom:8px; }
+    .opciones-grid { display:flex; flex-wrap:wrap; gap:8px; }
+    .op-btn { padding:8px 16px; border:1.5px solid var(--borde); border-radius:3px; background:var(--blanco); font-family:'Jost',sans-serif; font-size:13px; color:var(--cafe-oscuro); cursor:pointer; transition:all 0.2s; }
+    .op-btn:hover { border-color:var(--cafe); color:var(--cafe); }
+    .op-btn.sel { border-color:var(--verde); background:var(--verde); color:var(--blanco); }
+
+    .campo-input { width:100%; padding:10px 14px; border:1.5px solid var(--borde); border-radius:3px; font-family:'Jost',sans-serif; font-size:14px; color:var(--cafe-oscuro); background:var(--crema); outline:none; transition:border-color 0.2s; }
+    .campo-input:focus { border-color:var(--cafe); background:var(--blanco); }
+
+    .campo-textarea { width:100%; padding:10px 14px; border:1.5px solid var(--borde); border-radius:3px; font-family:'Jost',sans-serif; font-size:14px; color:var(--cafe-oscuro); background:var(--crema); outline:none; transition:border-color 0.2s; resize:vertical; min-height:80px; line-height:1.6; }
+    .campo-textarea:focus { border-color:var(--cafe); background:var(--blanco); }
+
+    .tabs { display:flex; }
+    .tab { flex:1; padding:10px; border:1.5px solid var(--borde); background:var(--blanco); font-family:'Jost',sans-serif; font-size:13px; cursor:pointer; transition:all 0.2s; color:var(--gris); }
+    .tab:first-child { border-radius:3px 0 0 3px; }
+    .tab:last-child { border-radius:0 3px 3px 0; border-left:none; }
+    .tab.sel { background:var(--cafe-oscuro); color:var(--crema); border-color:var(--cafe-oscuro); }
+
+    #campos-domicilio { display:none; margin-top:14px; }
+    #campos-domicilio.show { display:block; }
+
+    .dos-campos { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    @media(max-width:480px) { .dos-campos{grid-template-columns:1fr;} }
+
+    /* BOTON FECHA */
+    .btn-fecha { display:flex; align-items:center; gap:10px; padding:11px 16px; border:1.5px solid var(--borde); border-radius:3px; background:var(--crema); font-family:'Jost',sans-serif; font-size:14px; color:var(--gris); cursor:pointer; transition:all 0.2s; width:100%; }
+    .btn-fecha:hover { border-color:var(--cafe); color:var(--cafe); }
+    .btn-fecha.con-fecha { border-color:var(--verde); color:var(--verde); background:rgba(58,92,63,0.06); font-weight:500; }
+    .btn-fecha .icono { font-size:16px; }
+
+    /* MODAL CALENDARIO */
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:500; display:none; align-items:center; justify-content:center; padding:20px; }
+    .modal-overlay.open { display:flex; }
+    .modal-cal { background:var(--blanco); border-radius:8px; padding:24px; width:100%; max-width:340px; box-shadow:0 20px 60px rgba(0,0,0,0.2); animation:fadeUp 0.25s ease; }
+    .modal-cal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+    .modal-cal-titulo { font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:400; color:var(--cafe-oscuro); }
+    .modal-cal-cerrar { background:none; border:none; font-size:20px; cursor:pointer; color:var(--gris); padding:4px; }
+    .cal-nav-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+    .cal-mes-titulo { font-family:'Cormorant Garamond',serif; font-size:17px; font-weight:400; color:var(--cafe-oscuro); }
+    .cal-nav { background:none; border:1.5px solid var(--borde); border-radius:3px; width:28px; height:28px; cursor:pointer; font-size:13px; color:var(--cafe); display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
+    .cal-nav:hover { background:var(--cafe); color:var(--blanco); border-color:var(--cafe); }
+    .cal-dias-semana { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; margin-bottom:6px; }
+    .cal-dia-nombre { text-align:center; font-size:10px; font-weight:500; letter-spacing:1px; color:var(--gris); text-transform:uppercase; padding:4px 0; }
+    .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+    .cal-dia { text-align:center; padding:8px 2px; border-radius:3px; font-size:13px; cursor:pointer; transition:all 0.2s; color:var(--cafe-oscuro); border:1.5px solid transparent; }
+    .cal-dia:hover:not(.disabled):not(.empty) { background:var(--borde); }
+    .cal-dia.sel { background:var(--verde); color:var(--blanco); border-color:var(--verde); }
+    .cal-dia.hoy { border-color:var(--dorado); }
+    .cal-dia.disabled { color:#ccc; cursor:not-allowed; }
+    .cal-dia.empty { cursor:default; }
+
+    /* DEDICATORIA */
+    .obs-sugerencias { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:4px; }
+    .obs-chip { padding:7px 14px; border:1.5px solid var(--borde); border-radius:20px; background:var(--crema); font-family:'Jost',sans-serif; font-size:12px; color:var(--gris); cursor:pointer; transition:all 0.2s; }
+    .obs-chip:hover { border-color:var(--cafe); color:var(--cafe); }
+    .obs-chip.sel { border-color:var(--rosa); background:rgba(232,180,184,0.15); color:var(--cafe-oscuro); }
+
+    .dedicatoria-toggle { display:flex; align-items:center; gap:10px; cursor:pointer; padding:10px 14px; border:1.5px dashed var(--borde); border-radius:3px; color:var(--gris); font-size:13px; transition:all 0.2s; background:var(--crema); }
+    .dedicatoria-toggle:hover { border-color:var(--cafe); color:var(--cafe); }
+    .dedicatoria-toggle.abierta { border-color:var(--rosa); color:var(--cafe-oscuro); background:rgba(232,180,184,0.1); }
+    #campos-dedicatoria { display:none; margin-top:12px; }
+    #campos-dedicatoria.show { display:block; }
+
+    /* RESUMEN */
+    .resumen { background:var(--blanco); border-radius:4px; padding:24px; box-shadow:0 2px 16px rgba(26,16,8,0.07); position:sticky; top:20px; }
+    .resumen h3 { font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:400; margin-bottom:20px; color:var(--cafe-oscuro); border-bottom:1px solid var(--borde); padding-bottom:14px; }
+    .res-linea { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:13px; }
+    .res-linea span:first-child { color:var(--gris); }
+    .res-linea span:last-child { font-weight:500; color:var(--cafe-oscuro); }
+    .res-linea.total { border-top:1px solid var(--borde); margin-top:14px; padding-top:14px; font-size:15px; }
+    .res-linea.total span { font-weight:700; color:var(--negro); }
+    .res-linea.anticipo span:last-child { color:var(--verde); }
+    .res-linea.restante span:last-child { color:var(--gris); }
+    .res-placeholder { color:var(--gris); font-size:13px; text-align:center; padding:16px 0; line-height:1.6; }
+
+    .btn-confirmar { display:block; width:100%; padding:15px; background:var(--verde); color:var(--blanco); text-align:center; font-family:'Jost',sans-serif; font-size:13px; font-weight:500; letter-spacing:1.5px; text-transform:uppercase; border-radius:3px; border:none; cursor:pointer; transition:background 0.2s; margin-top:20px; }
+    .btn-confirmar:hover { background:var(--cafe); }
+    .aviso { font-size:11px; color:var(--gris); text-align:center; margin-top:10px; line-height:1.6; }
+
+    .footer { background:#2c1f14; color:rgba(247,240,230,0.5); text-align:center; padding:28px 20px; font-size:12px; letter-spacing:0.5px; }
+    .footer strong { color:var(--dorado); }
+    .error-state { text-align:center; padding:60px 20px; color:var(--gris); }
+    .error-state .icon { font-size:48px; margin-bottom:16px; }
+    @media(max-width:480px) { .productos-grid{grid-template-columns:1fr;} }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <img src="https://res.cloudinary.com/dyx5xyip4/image/upload/v1778570759/WhatsApp_Image_2026-05-11_at_11.23.45_PM_-_Editado_bnwbt3.png" alt="Ferrer Flower Boutique" style="width:320px;max-width:80%;opacity:0;animation:fadeUp 0.8s ease 0.2s forwards;"/>
+  <p class="hero-sub" style="color:#6b5a4e;margin-top:16px;opacity:0;animation:fadeUp 0.8s ease 0.4s forwards;">Ramos frescos · Entrega a domicilio · Monterrey</p>
+  <div class="hero-linea" style="background:#9e8b7a;opacity:0;animation:fadeUp 0.8s ease 0.5s forwards;"></div>
+</div>
+
+<div class="main">
+
+  <!-- CATALOGO -->
+  <div id="vista-catalogo">
+    <div class="intro"><p>Elige el ramo que más te guste y realiza tu pedido en minutos.</p></div>
+    <div class="productos-grid" id="productos-grid">
+      <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--gris);">
+        <div style="font-size:36px;margin-bottom:12px;">🌸</div>
+        <p>Cargando catálogo...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PEDIDO -->
+  <div id="vista-pedido">
+    <div class="pedido-header">
+      <button class="btn-volver" onclick="volverCatalogo()">←</button>
+      <h2>Tu pedido</h2>
+    </div>
+    <div class="pedido-layout">
+
+      <div class="pedido-form">
+        <div class="ramo-preview" id="ramo-preview"></div>
+
+        <!-- COLOR -->
+        <div class="seccion" id="sec-color" style="display:none;">
+          <label>Color del ramo</label>
+          <div class="opciones-grid" id="ops-color"></div>
+        </div>
+
+        <!-- CANTIDAD -->
+        <div class="seccion">
+          <label>Número de flores</label>
+          <div class="opciones-grid" id="ops-cantidad"></div>
+        </div>
+
+        <!-- ENTREGA -->
+        <div class="seccion">
+          <label>Tipo de entrega</label>
+          <div class="tabs">
+            <button class="tab sel" onclick="setEntrega('domicilio',this)">🚚 A domicilio</button>
+            <button class="tab" onclick="setEntrega('recoger',this)">🏪 Recoger</button>
+          </div>
+          <div id="campos-domicilio" class="show">
+            <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;">
+              <input class="campo-input" type="text" id="inp-calle" placeholder="Calle y número exterior"/>
+              <input class="campo-input" type="text" id="inp-colonia" placeholder="Colonia"/>
+              <input class="campo-input" type="text" id="inp-municipio" placeholder="Municipio / Ciudad"/>
+              <input class="campo-input" type="text" id="inp-cp" placeholder="Código postal"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- FECHA -->
+        <div class="seccion">
+          <label id="lbl-fecha">Fecha de entrega</label>
+          <button class="btn-fecha" id="btn-fecha" onclick="abrirCalendario()">
+            <span class="icono">📅</span>
+            <span id="btn-fecha-texto">Seleccionar fecha</span>
+          </button>
+        </div>
+
+        <!-- HORA -->
+        <div class="seccion">
+          <label id="lbl-hora">Hora de entrega</label>
+          <div class="opciones-grid" id="ops-hora"></div>
+        </div>
+
+        <!-- QUIEN RECIBE -->
+        <div class="seccion">
+          <label>Datos de quien recibe</label>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <input class="campo-input" type="text" id="inp-nombre" placeholder="Nombre completo de quien recibe"/>
+            <input class="campo-input" type="tel" id="inp-tel-receptor" placeholder="Teléfono de quien recibe"/>
+          </div>
+        </div>
+
+        <!-- DEDICATORIA -->
+        <div class="seccion">
+          <label>Dedicatoria <span style="font-weight:300;text-transform:none;letter-spacing:0;">(opcional)</span></label>
+          <div class="dedicatoria-toggle" id="toggle-dedicatoria" onclick="toggleDedicatoria()">
+            <span>💌</span>
+            <span id="toggle-dedicatoria-texto">Agregar dedicatoria al ramo</span>
+          </div>
+          <div id="campos-dedicatoria">
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:0;">
+              <textarea class="campo-textarea" id="inp-dedicatoria" placeholder="Escribe aquí el mensaje de la tarjeta..."></textarea>
+              <input class="campo-input" type="text" id="inp-firma" placeholder="Firma (ej. Con amor, Juan)"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- OBSERVACIONES -->
+        <div class="seccion">
+          <label>Observaciones <span style="font-weight:300;text-transform:none;letter-spacing:0;">(opcional)</span></label>
+          <p style="font-size:12px;color:var(--gris);margin-bottom:8px;">¿Algo que debamos saber para mejorar tu entrega?</p>
+          <div class="obs-sugerencias" id="obs-sugerencias">
+            <button class="obs-chip" onclick="agregarObservacion(this, 'Es una sorpresa 🤫')">Es una sorpresa 🤫</button>
+            <button class="obs-chip" onclick="agregarObservacion(this, 'Llamar antes de entregar 📞')">Llamar antes 📞</button>
+            <button class="obs-chip" onclick="agregarObservacion(this, 'Dejar en recepción 🏢')">Dejar en recepción 🏢</button>
+            <button class="obs-chip" onclick="agregarObservacion(this, 'Esperar afuera 🚪')">Esperar afuera 🚪</button>
+            <button class="obs-chip" onclick="agregarObservacion(this, 'Entregar con discreción 🤐')">Con discreción 🤐</button>
+          </div>
+          <textarea class="campo-textarea" id="inp-observaciones" placeholder="O escribe tus indicaciones aquí..." style="margin-top:10px;min-height:60px;"></textarea>
+        </div>
+
+      </div>
+
+      <!-- RESUMEN -->
+      <div class="resumen">
+        <h3>Resumen</h3>
+        <div id="res-contenido"><p class="res-placeholder">Completa tu pedido para ver el resumen 🌸</p></div>
+        <button class="btn-confirmar" onclick="confirmarPedido()">
+          💬 Enviar pedido a WhatsApp
+        </button>
+        <p class="aviso">Se abrirá WhatsApp con tu pedido listo para enviar.</p>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL CALENDARIO -->
+<div class="modal-overlay" id="modal-cal">
+  <div class="modal-cal">
+    <div class="modal-cal-header">
+      <span class="modal-cal-titulo">Elige la fecha</span>
+      <button class="modal-cal-cerrar" onclick="cerrarCalendario()">×</button>
+    </div>
+    <div class="cal-nav-row">
+      <button class="cal-nav" onclick="cambiarMes(-1)">‹</button>
+      <span class="cal-mes-titulo" id="cal-mes-titulo"></span>
+      <button class="cal-nav" onclick="cambiarMes(1)">›</button>
+    </div>
+    <div class="cal-dias-semana">
+      <div class="cal-dia-nombre">Dom</div><div class="cal-dia-nombre">Lun</div>
+      <div class="cal-dia-nombre">Mar</div><div class="cal-dia-nombre">Mié</div>
+      <div class="cal-dia-nombre">Jue</div><div class="cal-dia-nombre">Vie</div>
+      <div class="cal-dia-nombre">Sáb</div>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
+</div>
+
+<div class="footer"><p><img src="https://res.cloudinary.com/dyx5xyip4/image/upload/v1778570759/WhatsApp_Image_2026-05-11_at_11.23.45_PM_-_Editado_bnwbt3.png" alt="Ferrer" style="height:30px;vertical-align:middle;margin-right:8px;filter:brightness(2);opacity:0.7;"/> Monterrey, México</p></div>
+
+<script>
+// ============================================
+const WHATSAPP_NUMERO = "15551778433";
+const COSTO_ENVIO_DEFAULT = 50;
+// ============================================
+
+let configData = {};
+let prod = null, claveProd = null;
+let colorSel = null, cantidadSel = null;
+let tipoEntrega = 'domicilio';
+let fechaSel = null, fechaEtiqueta = null, horaSel = null;
+let calMes, calAnio;
+let dedicatoriaAbierta = false;
+
+// ===== CATALOGO =====
+async function cargarConfig() {
+  try {
+    const [resP, resN] = await Promise.all([fetch('/api/productos'), fetch('/api/negocio')]);
+    const productos = await resP.json();
+    const negocio = await resN.json();
+    configData = { productos, negocio };
+    renderCatalogo(productos);
+  } catch(e) {
+    document.getElementById('productos-grid').innerHTML = `<div class="error-state" style="grid-column:1/-1;"><div class="icon">🌿</div><p>No pudimos cargar el catálogo.<br>Escríbenos directamente por WhatsApp.</p></div>`;
+  }
+}
+
+function rangoPrecios(opciones) {
+  if (!opciones || !opciones.length) return null;
+  const p = opciones.map(o => o.precio);
+  const mn = Math.min(...p), mx = Math.max(...p);
+  return mn === mx ? `$${mn}` : `$${mn} – $${mx}`;
+}
+
+function renderCatalogo(productos) {
+  const grid = document.getElementById('productos-grid');
+  if (!Object.keys(productos).length) {
+    grid.innerHTML = `<div class="error-state" style="grid-column:1/-1;"><div class="icon">🌸</div><p>El catálogo está siendo actualizado.</p></div>`;
+    return;
+  }
+  grid.innerHTML = Object.entries(productos).map(([clave, p]) => {
+    const rango = rangoPrecios(p.opciones_cantidad);
+    const colores = p.colores || [];
+    return `
+    <div class="producto-card" onclick="elegirProd('${clave}')">
+      <div class="prod-img">
+        ${p.imagen ? `<img src="${p.imagen}" alt="${p.nombre}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'prod-img-ph\\'>🌸</div>'"/>` : '<div class="prod-img-ph">🌸</div>'}
+        <span class="prod-num">N° ${clave}</span>
+      </div>
+      <div class="prod-body">
+        <h2 class="prod-nombre">${p.nombre}</h2>
+        <div class="prod-precio">${rango ? `Desde <strong>${rango}</strong>` : '<span>Consultar precio</span>'}</div>
+        ${colores.length ? `<div class="prod-colores">${colores.map(c=>`<span class="color-chip">${c}</span>`).join('')}</div>` : ''}
+        <button class="btn-elegir">Elegir este ramo</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function elegirProd(clave) {
+  prod = configData.productos[clave];
+  claveProd = clave;
+  colorSel = null; cantidadSel = null; fechaSel = null; fechaEtiqueta = null; horaSel = null;
+  tipoEntrega = 'domicilio';
+  dedicatoriaAbierta = false;
+
+  document.getElementById('ramo-preview').innerHTML = `
+    ${prod.imagen ? `<img src="${prod.imagen}" alt="${prod.nombre}"/>` : '<div style="width:70px;height:70px;background:var(--crema);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:28px;">🌸</div>'}
+    <div class="info"><h3>${prod.nombre}</h3><p>Ramo N° ${clave}</p></div>`;
+
+  const colores = prod.colores || [];
+  const secColor = document.getElementById('sec-color');
+  if (colores.length) {
+    secColor.style.display = 'block';
+    document.getElementById('ops-color').innerHTML =
+      colores.map(c => `<button class="op-btn" onclick="selColor('${c}',this)">${c}</button>`).join('') +
+      `<button class="op-btn" onclick="selColor('Como en foto',this)">Como en foto 👌</button>`;
+  } else {
+    secColor.style.display = 'none';
+    colorSel = 'Como en foto';
+  }
+
+  document.getElementById('ops-cantidad').innerHTML = (prod.opciones_cantidad || []).map((op, i) =>
+    `<button class="op-btn" onclick="selCantidad(${i},this)">${op.cantidad} flores — $${op.precio}</button>`
+  ).join('');
+
+  const horarios = configData.negocio.horarios_disponibles || [];
+  document.getElementById('ops-hora').innerHTML = horarios.map(h =>
+    `<button class="op-btn" onclick="selHora('${h}',this)">${h}</button>`
+  ).join('');
+
+  // Reset
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('sel', i===0));
+  document.getElementById('campos-domicilio').className = 'show';
+  document.getElementById('btn-fecha').className = 'btn-fecha';
+  document.getElementById('btn-fecha-texto').textContent = 'Seleccionar fecha';
+  document.getElementById('inp-nombre').value = '';
+  document.getElementById('inp-tel-receptor').value = '';
+  document.getElementById('inp-dedicatoria').value = '';
+  document.getElementById('inp-firma').value = '';
+  document.getElementById('campos-dedicatoria').className = '';
+  document.getElementById('inp-observaciones').value = '';
+  document.querySelectorAll('.obs-chip').forEach(b => b.classList.remove('sel'));
+  document.getElementById('toggle-dedicatoria').className = 'dedicatoria-toggle';
+  document.getElementById('toggle-dedicatoria-texto').textContent = 'Agregar dedicatoria al ramo';
+
+  const hoy = new Date();
+  calMes = hoy.getMonth();
+  calAnio = hoy.getFullYear();
+
+  document.getElementById('vista-catalogo').style.display = 'none';
+  document.getElementById('vista-pedido').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  actualizarResumen();
+}
+
+function volverCatalogo() {
+  document.getElementById('vista-pedido').style.display = 'none';
+  document.getElementById('vista-catalogo').style.display = 'block';
+}
+
+// ===== SELECCIONES =====
+function selColor(c, btn) {
+  colorSel = c;
+  document.querySelectorAll('#ops-color .op-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  actualizarResumen();
+}
+
+function selCantidad(idx, btn) {
+  cantidadSel = prod.opciones_cantidad[idx];
+  document.querySelectorAll('#ops-cantidad .op-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  actualizarResumen();
+}
+
+function setEntrega(tipo, btn) {
+  tipoEntrega = tipo;
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  document.getElementById('campos-domicilio').className = tipo === 'domicilio' ? 'show' : '';
+  document.getElementById('lbl-fecha').textContent = tipo === 'domicilio' ? 'Fecha de entrega' : 'Fecha de recogida';
+  document.getElementById('lbl-hora').textContent = tipo === 'domicilio' ? 'Hora de entrega' : 'Hora de recogida';
+  actualizarResumen();
+}
+
+function selHora(h, btn) {
+  horaSel = h;
+  document.querySelectorAll('#ops-hora .op-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  actualizarResumen();
+}
+
+// ===== CALENDARIO MODAL =====
+function abrirCalendario() {
+  renderCalModal();
+  document.getElementById('modal-cal').classList.add('open');
+}
+
+function cerrarCalendario() {
+  document.getElementById('modal-cal').classList.remove('open');
+}
+
+function cambiarMes(dir) {
+  calMes += dir;
+  if (calMes > 11) { calMes = 0; calAnio++; }
+  if (calMes < 0) { calMes = 11; calAnio--; }
+  renderCalModal();
+}
+
+function renderCalModal() {
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  document.getElementById('cal-mes-titulo').textContent = `${meses[calMes]} ${calAnio}`;
+
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const primerDia = new Date(calAnio, calMes, 1).getDay();
+  const diasMes = new Date(calAnio, calMes + 1, 0).getDate();
+
+  let html = '';
+  for (let i = 0; i < primerDia; i++) html += `<div class="cal-dia empty"></div>`;
+
+  for (let d = 1; d <= diasMes; d++) {
+    const fecha = new Date(calAnio, calMes, d); fecha.setHours(0,0,0,0);
+    const esHoy = fecha.getTime() === hoy.getTime();
+    const esPasado = fecha < hoy;
+    const fStr = `${calAnio}-${String(calMes+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const etq = `${d} de ${meses[calMes]} ${calAnio}`;
+    const esSel = fechaSel === fStr;
+
+    let clase = 'cal-dia';
+    if (esPasado) clase += ' disabled';
+    if (esHoy) clase += ' hoy';
+    if (esSel) clase += ' sel';
+
+    const onclick = esPasado ? '' : `onclick="selFecha('${fStr}','${etq}')"`;
+    html += `<div class="${clase}" ${onclick}>${d}</div>`;
+  }
+  document.getElementById('cal-grid').innerHTML = html;
+}
+
+function selFecha(fStr, etq) {
+  fechaSel = fStr;
+  fechaEtiqueta = etq;
+  const btn = document.getElementById('btn-fecha');
+  btn.className = 'btn-fecha con-fecha';
+  document.getElementById('btn-fecha-texto').textContent = `📅 ${etq}`;
+  cerrarCalendario();
+  actualizarResumen();
+}
+
+// Cerrar modal al click fuera
+document.getElementById('modal-cal').addEventListener('click', function(e) {
+  if (e.target === this) cerrarCalendario();
+});
+
+// ===== OBSERVACIONES =====
+function agregarObservacion(btn, texto) {
+  btn.classList.toggle('sel');
+  const inp = document.getElementById('inp-observaciones');
+  const actual = inp.value.trim();
+  if (btn.classList.contains('sel')) {
+    inp.value = actual ? actual + ', ' + texto : texto;
+  } else {
+    inp.value = actual.replace(', ' + texto, '').replace(texto + ', ', '').replace(texto, '').trim();
+  }
+}
+
+// ===== DEDICATORIA =====
+function toggleDedicatoria() {
+  dedicatoriaAbierta = !dedicatoriaAbierta;
+  const campos = document.getElementById('campos-dedicatoria');
+  const toggle = document.getElementById('toggle-dedicatoria');
+  const texto = document.getElementById('toggle-dedicatoria-texto');
+  campos.className = dedicatoriaAbierta ? 'show' : '';
+  toggle.className = dedicatoriaAbierta ? 'dedicatoria-toggle abierta' : 'dedicatoria-toggle';
+  texto.textContent = dedicatoriaAbierta ? 'Quitar dedicatoria' : 'Agregar dedicatoria al ramo';
+}
+
+// ===== RESUMEN =====
+function actualizarResumen() {
+  const contenido = document.getElementById('res-contenido');
+  if (!cantidadSel) {
+    contenido.innerHTML = '<p class="res-placeholder">Elige el número de flores para ver el precio 🌸</p>';
+    return;
+  }
+  const costoEnvio = tipoEntrega === 'domicilio' ? (configData.negocio.costo_envio_metro || COSTO_ENVIO_DEFAULT) : 0;
+  const total = cantidadSel.precio + costoEnvio;
+  const anticipo = Math.round(total * 0.70);
+  const restante = total - anticipo;
+
+  contenido.innerHTML = `
+    <div class="res-linea"><span>${prod.nombre}</span><span>$${cantidadSel.precio}</span></div>
+    ${colorSel ? `<div class="res-linea"><span>Color</span><span>${colorSel}</span></div>` : ''}
+    <div class="res-linea"><span>Flores</span><span>${cantidadSel.cantidad} piezas</span></div>
+    ${fechaEtiqueta ? `<div class="res-linea"><span>Fecha</span><span>${fechaEtiqueta}</span></div>` : ''}
+    ${horaSel ? `<div class="res-linea"><span>Hora</span><span>${horaSel}</span></div>` : ''}
+    ${tipoEntrega === 'domicilio'
+      ? `<div class="res-linea"><span>Envío área metro</span><span>$${costoEnvio}</span></div>`
+      : `<div class="res-linea"><span>Envío</span><span>Sin costo</span></div>`}
+    <div class="res-linea total"><span>Total</span><span>$${total}</span></div>
+    <div class="res-linea anticipo"><span>Anticipo (70%)</span><span>$${anticipo}</span></div>
+    <div class="res-linea restante"><span>Resto en entrega</span><span>$${restante}</span></div>
+  `;
+}
+
+// ===== CONFIRMAR =====
+function confirmarPedido() {
+  const colores = prod.colores || [];
+  if (colores.length && !colorSel) { alert('Por favor elige el color del ramo 🎨'); return; }
+  if (!cantidadSel) { alert('Por favor elige el número de flores 💐'); return; }
+  if (!fechaSel) { alert('Por favor elige la fecha 📅'); return; }
+  if (!horaSel) { alert('Por favor elige el horario 🕐'); return; }
+
+  const nombre = document.getElementById('inp-nombre').value.trim();
+  const telReceptor = document.getElementById('inp-tel-receptor').value.trim();
+  if (!nombre || nombre.length < 2) { alert('Por favor escribe el nombre de quien recibe 👤'); return; }
+  if (!telReceptor) { alert('Por favor escribe el teléfono de quien recibe 📞'); return; }
+
+  let direccion = 'Recoger en tienda';
+  if (tipoEntrega === 'domicilio') {
+    const calle = document.getElementById('inp-calle').value.trim();
+    const colonia = document.getElementById('inp-colonia').value.trim();
+    const municipio = document.getElementById('inp-municipio').value.trim();
+    const cp = document.getElementById('inp-cp').value.trim();
+    if (!calle || !colonia || !municipio) { alert('Por favor completa la dirección de entrega 📍'); return; }
+    direccion = `${calle}, ${colonia}, ${municipio}${cp ? ', CP '+cp : ''}`;
+  }
+
+  const costoEnvio = tipoEntrega === 'domicilio' ? (configData.negocio.costo_envio_metro || COSTO_ENVIO_DEFAULT) : 0;
+  const total = cantidadSel.precio + costoEnvio;
+  const anticipo = Math.round(total * 0.70);
+  const restante = total - anticipo;
+  const color = colorSel || 'Como en foto';
+
+  const observaciones = document.getElementById('inp-observaciones').value.trim();
+  const dedicatoria = document.getElementById('inp-dedicatoria').value.trim();
+  const firma = document.getElementById('inp-firma').value.trim();
+  const tieneDedicatoria = dedicatoriaAbierta && dedicatoria;
+
+  const msg =
+`🌸 *PEDIDO DESDE CATÁLOGO WEB*
+━━━━━━━━━━━━━━━━━━
+🌹 *Ramo:* ${prod.nombre}
+🎨 *Color:* ${color}
+💐 *Flores:* ${cantidadSel.cantidad} piezas
+📦 *Entrega:* ${tipoEntrega === 'domicilio' ? 'A domicilio' : 'Recoger en tienda'}
+📅 *Fecha:* ${fechaEtiqueta}
+🕐 *Hora:* ${horaSel}
+👤 *Recibe:* ${nombre}
+📞 *Tel. receptor:* ${telReceptor}
+${tipoEntrega === 'domicilio' ? `📍 *Dirección:* ${direccion}` : ''}
+${tieneDedicatoria ? `💌 *Dedicatoria:* ${dedicatoria}${firma ? `\n✍️ *Firma:* ${firma}` : ''}` : ''}
+${observaciones ? `📝 *Observaciones:* ${observaciones}` : ''}
+━━━━━━━━━━━━━━━━━━
+💰 *Precio ramo:* $${precioRamo}
+🚚 *Envío:* ${tipoEntrega === 'domicilio' ? 'Por calcular' : 'Sin costo'}
+✅ *Anticipo estimado (70%):* $${anticipo}
+━━━━━━━━━━━━━━━━━━
+#PEDIDO_WEB`;
+
+  window.open(`https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+cargarConfig();
+</script>
+</body>
+</html>

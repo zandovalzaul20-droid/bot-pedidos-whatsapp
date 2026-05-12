@@ -1,0 +1,224 @@
+{
+  "negocio": {
+    "nombre": "Florería Ferrer",
+    "archivo_pedidos": "pedidos_floreria.xlsx",
+    "costo_envio_metro": 50,
+    "limite_pedidos_por_hora": 5,
+    "horarios_disponibles": [
+      "09:00-11:00",
+      "11:00-13:00",
+      "13:00-15:00",
+      "15:00-17:00",
+      "17:00-19:00"
+    ]
+  },
+  "palabras_clave": {
+    "saludo": [
+      "hola",
+      "buenas",
+      "hey",
+      "buenos dias",
+      "buenas tardes",
+      "buenas noches",
+      "buen dia"
+    ],
+    "pedido": [
+      "1",
+      "quiero",
+      "catalogo",
+      "catálogo",
+      "flores",
+      "ramos",
+      "ver ramos",
+      "ordenar",
+      "comprar",
+      "hacer pedido"
+    ],
+    "como_agendar": [
+      "2",
+      "agendar",
+      "como funciona",
+      "cómo funciona",
+      "proceso",
+      "como hago",
+      "cómo hago"
+    ],
+    "pago": [
+      "3",
+      "pago",
+      "pagos",
+      "transferencia",
+      "cuenta",
+      "deposito",
+      "depósito",
+      "metodos",
+      "métodos"
+    ],
+    "rastrear": [
+      "4",
+      "rastrear",
+      "mi pedido",
+      "estado",
+      "donde esta",
+      "dónde está"
+    ],
+    "domicilio": [
+      "domicilio",
+      "entrega",
+      "envio",
+      "envío",
+      "direccion",
+      "dirección"
+    ],
+    "recoger": [
+      "recoger",
+      "paso",
+      "voy",
+      "recojo"
+    ]
+  },
+  "mensajes": {
+    "bienvenida": "🌸¡Hola! Bienvenid@ a *Florería Ferrer* 💐\n\n¿En qué te podemos ayudar hoy?\n\n1️⃣ Ver catálogo y hacer pedido\n2️⃣ ¿Cómo agendar mi pedido?\n3️⃣ Métodos de pago\n4️⃣ Rastrear mi pedido",
+    "como_agendar": "📋 *¿Cómo agendar tu pedido?*\n\n1. Elige tu ramo del catálogo 🌹\n2. Se requiere un anticipo del *70%* del costo por transferencia bancaria para confirmar tu pedido, sin excepción\n3. El saldo restante (*30%*) se paga también por transferencia bancaria al momento de la entrega\n\nUna vez realizado el depósito, comparte:\n📸 Comprobante de pago\n\nEscribe *ramos* cuando estés listo para ver el catálogo 🌸",
+    "metodos_pago": "💳 *Método de pago*\n\n🏦 *Transferencia bancaria*\n\n*BANORTE*\nTitular: Candelaria Silva\nCuenta: 4189143146721652\n\n⚠️ Una vez realizado el depósito, envía tu comprobante por este medio.\nPresiona:\n1️⃣ Ver catálogo y hacer pedido.\n2️⃣ ¿Cómo agendar mi pedido?",
+    "rastrear": "🔍 Por favor escribe tu *nombre completo* o el *número de pedido* para rastrear tu pedido.",
+    "pedido_confirmado": "¡Listo! Tu pedido está confirmado ✅\n\nRecuerda enviar:\n📸 Comprobante del anticipo (70%)\n\nEn breve nos ponemos en contacto contigo 🌹",
+    "recoger_confirmado": "Perfecto, te avisamos cuando tu ramo esté listo 🌸"
+  },
+  "productos": {
+    "1": {
+      "colores": [
+        "Rojo",
+        "Rosa",
+        "Blanco",
+        "Amarillo"
+      ],
+      "imagen": "https://res.cloudinary.com/dyx5xyip4/image/upload/v1777712476/24_50_100_150o500RosasRojasenRamillete_fl6ibl.jpg",
+      "nombre": "Ramo de Rosas",
+      "opciones_cantidad": [
+        {
+          "cantidad": 12,
+          "precio": 300
+        },
+        {
+          "cantidad": 24,
+          "precio": 550
+        },
+        {
+          "cantidad": 36,
+          "precio": 750
+        }
+      ]
+    },
+    "2": {
+      "colores": [],
+      "imagen": "https://res.cloudinary.com/dyx5xyip4/image/upload/v1777712566/ramo-3-girasoles-solo_o53nf8.jpg",
+      "nombre": "Ramo de Girasoles",
+      "opciones_cantidad": [
+        {
+          "cantidad": 6,
+          "precio": 200
+        },
+        {
+          "cantidad": 12,
+          "precio": 350
+        },
+        {
+          "cantidad": 18,
+          "precio": 500
+        }
+      ]
+    },
+    "3": {
+      "colores": [
+        "Rojo",
+        "Rosa",
+        "Blanco",
+        "Amarillo",
+        "Azules"
+      ],
+      "imagen": "https://res.cloudinary.com/dyx5xyip4/image/upload/v1777710445/7f0adaad-2a36-4459-af1c-c0bf093b5fed-350x435_h2v95y.jpg",
+      "nombre": "Ramo de Tulipanes",
+      "opciones_cantidad": [
+        {
+          "cantidad": 12,
+          "precio": 350
+        },
+        {
+          "cantidad": 24,
+          "precio": 550
+        },
+        {
+          "cantidad": 36,
+          "precio": 750
+        }
+      ]
+    },
+    "4": {
+      "colores": [
+        "Blanco",
+        "Morado",
+        "Rosa"
+      ],
+      "imagen": "https://res.cloudinary.com/dyx5xyip4/image/upload/v1777710468/img_0598-scaled_ozjppo.jpg",
+      "nombre": "Ramo de Lirios",
+      "opciones_cantidad": [
+        {
+          "cantidad": 12,
+          "precio": 300
+        },
+        {
+          "cantidad": 24,
+          "precio": 550
+        },
+        {
+          "cantidad": 36,
+          "precio": 750
+        }
+      ]
+    },
+    "5": {
+      "colores": [],
+      "imagen": "https://res.cloudinary.com/dyx5xyip4/image/upload/v1777710257/506e1c225db24aa9bd1ba81d2dfc8b65_nll4v9.jpg",
+      "nombre": "Ramo Mixto",
+      "opciones_cantidad": [
+        {
+          "cantidad": 12,
+          "precio": 300
+        },
+        {
+          "cantidad": 24,
+          "precio": 550
+        },
+        {
+          "cantidad": 36,
+          "precio": 750
+        }
+      ]
+    }
+  },
+  "clientes": {
+    "5218132383834": {
+      "direccion": {
+        "calle": "Sacretarios",
+        "numero": "118",
+        "colonia": "La Alianza",
+        "municipio": "Monterrey",
+        "estado": "Nuevo León",
+        "codigo_postal": "64103",
+        "pais": "México"
+      }
+    },
+    "5218110100155": {
+      "direccion": {
+        "calle": "Río Usumacinta",
+        "numero": "411",
+        "colonia": "México",
+        "municipio": "Monterrey",
+        "estado": "Nuevo León",
+        "codigo_postal": "64840",
+        "pais": "México"
+      }
+    }
+  }
+}
