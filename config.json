@@ -1,0 +1,188 @@
+{
+  "palabras_clave": {
+    "saludo": [
+      "hola",
+      "hi",
+      "hello",
+      "buenas",
+      "buenos días",
+      "buenos dias",
+      "buen día",
+      "buen dia",
+      "buenas tardes",
+      "buenas noches",
+      "hey",
+      "qué tal",
+      "que tal",
+      "saludos",
+      "inicio",
+      "menú",
+      "menu",
+      "start"
+    ],
+    "pedido": [
+      "quiero",
+      "pedir",
+      "ordenar",
+      "orden",
+      "pedido",
+      "comprar",
+      "compra",
+      "ramo",
+      "ramos",
+      "flores",
+      "arreglo",
+      "arreglos",
+      "bouquet",
+      "catalogo",
+      "catálogo",
+      "ver productos",
+      "ver flores",
+      "hacer pedido"
+    ],
+    "como_agendar": [
+      "cómo funciona",
+      "como funciona",
+      "cómo pido",
+      "como pido",
+      "cómo ordeno",
+      "como ordeno",
+      "cómo compro",
+      "como compro",
+      "cómo agendar",
+      "como agendar",
+      "agendar",
+      "instrucciones",
+      "ayuda",
+      "help",
+      "pasos",
+      "proceso"
+    ],
+    "pago": [
+      "pago",
+      "pagar",
+      "precio",
+      "precios",
+      "costo",
+      "costos",
+      "cuánto",
+      "cuanto",
+      "cuánto cuesta",
+      "cuanto cuesta",
+      "transferencia",
+      "efectivo",
+      "tarjeta",
+      "métodos de pago",
+      "metodos de pago",
+      "formas de pago",
+      "cobro"
+    ],
+    "rastrear": [
+      "rastrear",
+      "rastreo",
+      "dónde está",
+      "donde esta",
+      "mi pedido",
+      "estado del pedido",
+      "seguimiento",
+      "track",
+      "cuándo llega",
+      "cuando llega",
+      "estatus"
+    ],
+    "domicilio": [
+      "domicilio",
+      "envío",
+      "envio",
+      "entrega",
+      "entregar",
+      "a domicilio",
+      "delivery",
+      "dirección",
+      "direccion",
+      "mandar",
+      "llevar",
+      "enviar"
+    ],
+    "recoger": [
+      "recoger",
+      "recogeré",
+      "recogere",
+      "paso a recoger",
+      "voy a recoger",
+      "en tienda",
+      "sucursal",
+      "local",
+      "pick up",
+      "pickup"
+    ]
+  },
+  "mensajes": {
+    "bienvenida": "🌸 ¡Hola! Bienvenido a *Flores & Arreglos* 💐\n\nEstamos aquí para hacer tus momentos especiales aún más hermosos. ¿En qué te podemos ayudar hoy?\n\n1️⃣ *Ver catálogo* — escribe *quiero flores*\n2️⃣ *Cómo hacer un pedido* — escribe *cómo funciona*\n3️⃣ *Métodos de pago* — escribe *pago*\n4️⃣ *Envío a domicilio* — escribe *domicilio*\n5️⃣ *Recoger en tienda* — escribe *recoger*\n6️⃣ *Rastrear mi pedido* — escribe *rastrear*\n\n¡Con gusto te atendemos! 🌺",
+    "como_agendar": "📋 *¿Cómo hacer un pedido?*\n\nEs muy sencillo, sigue estos pasos:\n\n1️⃣ Escribe *quiero flores* para ver nuestro catálogo\n2️⃣ Elige el ramo que más te guste\n3️⃣ Selecciona el color de tu preferencia\n4️⃣ Indícanos si lo recoges en tienda o lo enviamos a domicilio\n5️⃣ Confirma tu dirección de entrega (si aplica)\n6️⃣ Realiza tu pago y ¡listo! 🎉\n\n¿Listo para empezar? Escribe *quiero flores* 🌸",
+    "pedido_recibido": "✅ ¡Pedido registrado con éxito!\n\nAhora dinos cómo prefieres recibirlo:\n\n🚚 *Envío a domicilio* — escribe *domicilio*\n🏪 *Recoger en tienda* — escribe *recoger*",
+    "pedido_confirmado": "🎉 ¡Tu pedido está confirmado!\n\nNuestro equipo comenzará a prepararlo con mucho cariño. 💐\n\nTe notificaremos cuando esté listo. Si tienes alguna duda, escríbenos aquí.\n\n¡Gracias por elegirnos! 🌸",
+    "metodos_pago": "💳 *Métodos de pago disponibles:*\n\n🏦 *Transferencia bancaria*\nBanco: BBVA\nCuenta: 1234 5678 9012 3456\nCLABE: 012 345 678 901 234 567\nTitular: Flores & Arreglos S.A.\n\n💵 *Efectivo*\nPago al momento de la entrega o al recoger en tienda.\n\n💳 *Tarjeta de crédito/débito*\nDisponible en tienda física.\n\n📲 *Transferencia por CoDi / SPEI*\nEnvíanos el comprobante por este chat para confirmar tu pedido. ✅",
+    "rastrear": "🔍 *Rastreo de pedido*\n\nPara consultar el estado de tu pedido, por favor compártenos:\n\n📌 Tu *nombre completo*\n📌 El *número de pedido* (si lo tienes)\n📌 O el *número de teléfono* con el que realizaste el pedido\n\nUn asesor te responderá a la brevedad. ⏱️",
+    "pedir_ubicacion": "📍 Para coordinar tu entrega, necesitamos tu dirección.\n\nPuedes:\n\n1️⃣ *Compartir tu ubicación* desde WhatsApp (toca el clip 📎 → Ubicación)\n2️⃣ O escribir tu dirección completa manualmente\n\n¿Cuál prefieres? 😊",
+    "recoger_confirmado": "🏪 ¡Perfecto! Puedes pasar a recoger tu pedido en nuestra tienda:\n\n📍 *Dirección:* Calle Primavera #45, Col. Jardines, Guadalajara, Jalisco\n🕘 *Horario:* Lunes a Sábado de 9:00 a 20:00 hrs\n              Domingos de 10:00 a 15:00 hrs\n📞 *Teléfono:* (33) 1234-5678\n\nTe avisaremos cuando tu pedido esté listo para recoger. 🌸"
+  },
+  "negocio": {
+    "archivo_pedidos": "pedidos.xlsx",
+    "nombre": "Flores & Arreglos",
+    "telefono": "(33) 1234-5678",
+    "direccion": "Calle Primavera #45, Col. Jardines, Guadalajara, Jalisco",
+    "horario": "Lunes a Sábado 9:00–20:00 | Domingos 10:00–15:00"
+  },
+  "productos": {
+    "1": {
+      "nombre": "Ramo Romántico Rojo",
+      "precio": 450,
+      "imagen": "https://images.unsplash.com/photo-1548094990-c16ca90f1f0d?w=800",
+      "colores": [
+        "Rojo pasión",
+        "Rosa suave",
+        "Blanco elegante",
+        "Mezcla romántica"
+      ]
+    },
+    "2": {
+      "nombre": "Ramo Primaveral",
+      "precio": 380,
+      "imagen": "https://images.unsplash.com/photo-1487530811015-780780169993?w=800",
+      "colores": [
+        "Colores pastel",
+        "Tonos vibrantes",
+        "Blanco y verde"
+      ]
+    },
+    "3": {
+      "nombre": "Arreglo de Girasoles",
+      "precio": 320,
+      "imagen": "https://images.unsplash.com/photo-1597848212624-a19eb35e2651?w=800",
+      "colores": []
+    },
+    "4": {
+      "nombre": "Ramo de Novia Premium",
+      "precio": 850,
+      "imagen": "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800",
+      "colores": [
+        "Blanco puro",
+        "Blanco y rosa",
+        "Blanco y lila",
+        "Blanco y champagne"
+      ]
+    },
+    "5": {
+      "nombre": "Arreglo Tropical",
+      "precio": 520,
+      "imagen": "https://images.unsplash.com/photo-1490750967868-88df5691cc5e?w=800",
+      "colores": [
+        "Naranja y amarillo",
+        "Rosa y morado",
+        "Multicolor"
+      ]
+    }
+  },
+  "clientes": {}
+}
