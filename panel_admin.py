@@ -4,6 +4,8 @@ import os
 from functools import wraps
 from db import init_db, obtener_pedidos_db, actualizar_estado_db, actualizar_envio_db, actualizar_nota_db, guardar_pedido_db
 
+print("Panel admin cargado correctamente - version con notificaciones")
+
 app = Flask(__name__, static_folder="panel_static")
 app.secret_key = "floreria-candelaria-secret-2024"
 
