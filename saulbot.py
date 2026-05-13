@@ -8,6 +8,8 @@ import time
 from datetime import datetime
 from dotenv import load_dotenv
 from openpyxl import Workbook, load_workbook
+from db import init_db, guardar_pedido_db, obtener_pedidos_por_numero_db
+init_db()
 
 load_dotenv()
 
@@ -94,7 +96,7 @@ def procesar_pedido_web(numero, texto, estado):
         tipo_entrega = "domicilio" if "domicilio" in entrega.lower() else "recoger"
         pedido_desc  = f"{ramo} | {flores} | Color: {color}"
 
-        guardar_pedido(numero, pedido_desc, direccion, fecha, hora, receptor, tel_receptor, tipo_entrega, dedicatoria, firma, observaciones)
+        guardar_pedido_db(numero, pedido_desc, direccion, fecha, hora, receptor, tel_receptor, tipo_entrega, dedicatoria, firma, observaciones)
 
         try:
             precio_ramo = float(precio_ramo_str.replace("$", "").strip()) if precio_ramo_str else 0
@@ -159,18 +161,8 @@ def procesar_pedido_web(numero, texto, estado):
 # =========================
 def guardar_pedido(numero, pedido, direccion, fecha="", hora="", nombre_receptor="",
                    tel_receptor="", tipo_entrega="", dedicatoria="", firma="", observaciones=""):
-    archivo = NEGOCIO.get("archivo_pedidos", "pedidos.xlsx")
-    if not os.path.exists(archivo):
-        wb = Workbook()
-        ws = wb.active
-        ws.append(["Numero", "Pedido", "Direccion", "Fecha", "Hora", "Nombre Receptor",
-                   "Tel. Receptor", "Tipo Entrega", "Dedicatoria", "Firma", "Observaciones", "Estado"])
-        wb.save(archivo)
-    wb = load_workbook(archivo)
-    ws = wb.active
-    ws.append([numero, pedido, direccion, fecha, hora, nombre_receptor,
-               tel_receptor, tipo_entrega, dedicatoria, firma, observaciones, "⏳ En espera de anticipo"])
-    wb.save(archivo)
+    guardar_pedido_db(numero, pedido, direccion, fecha, hora, nombre_receptor,
+                      tel_receptor, tipo_entrega, dedicatoria, firma, observaciones)
 
 
 # =========================
@@ -239,47 +231,23 @@ scheduler_thread.start()
 # =========================
 def rastrear_pedidos(numero):
     try:
-        archivo = NEGOCIO.get("archivo_pedidos", "pedidos.xlsx")
-        if not os.path.exists(archivo):
-            enviar_mensaje(numero, "No encontramos pedidos asociados a tu número 🌸")
-            return
-
-        wb = load_workbook(archivo)
-        ws = wb.active
-        headers = [cell.value for cell in ws[1]]
         numero_normalizado = normalizar_numero(numero)
-        pedidos_cliente = []
-
-        for row in ws.iter_rows(min_row=2, values_only=True):
-            pedido = dict(zip(headers, row))
-            numero_pedido = normalizar_numero(str(pedido.get("Numero", "") or ""))
-            if numero_pedido == numero_normalizado:
-                pedidos_cliente.append(pedido)
-
+        pedidos_cliente = obtener_pedidos_por_numero_db(numero_normalizado)
         if not pedidos_cliente:
-            enviar_mensaje(numero, "No encontramos pedidos asociados a tu número 🌸\n\nSi quieres hacer un pedido visita nuestro catálogo:\n👉 " + NEGOCIO.get("url_catalogo", ""))
+            enviar_mensaje(numero, "No encontramos pedidos asociados a tu número 🌸\n\nVisita nuestro catálogo:\n👉 " + NEGOCIO.get("url_catalogo", ""))
             return
-
         mensaje = "🔍 *Tus pedidos:*\n\n"
         for i, p in enumerate(pedidos_cliente, 1):
-            pedido_desc = p.get("Pedido", "")
-            fecha = p.get("Fecha", "-")
-            hora = p.get("Hora", "-")
-            tipo = p.get("Tipo Entrega", "-")
-            estado = p.get("Estado", "⏳ En espera de anticipo")
             mensaje += (
-                f"*{i}. {pedido_desc}*\n"
-                f"📅 {fecha} | 🕐 {hora}\n"
-                f"📦 {tipo}\n"
-                f"Estado: {estado}\n\n"
+                f"*{i}. {p.get('pedido', '')}*\n"
+                f"📅 {p.get('fecha', '-')} | 🕐 {p.get('hora', '-')}\n"
+                f"📦 {p.get('tipo_entrega', '-')}\n"
+                f"Estado: {p.get('estado', '⏳ En espera de anticipo')}\n\n"
             )
-
         enviar_mensaje(numero, mensaje)
-
     except Exception as e:
         print(f"Error rastreando pedidos: {e}")
-        enviar_mensaje(numero, "Hubo un error al buscar tus pedidos. Intenta más tarde 🌸")
-
+        enviar_mensaje(numero, "Hubo un error al buscar tus pedidos 🌸")
 
 # =========================
 # WEBHOOK

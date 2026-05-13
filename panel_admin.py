@@ -2,9 +2,15 @@ from flask import Flask, request, jsonify, session, send_from_directory
 import json
 import os
 from functools import wraps
+from db import init_db, obtener_pedidos_db, actualizar_estado_db, actualizar_envio_db, actualizar_nota_db, guardar_pedido_db
 
 app = Flask(__name__, static_folder="panel_static")
 app.secret_key = "floreria-candelaria-secret-2024"
+
+try:
+    init_db()
+except Exception as e:
+    print(f"Error iniciando DB: {e}")
 
 CONFIG_FILE = "config.json"
 ADMIN_USER = "admin"
@@ -107,20 +113,28 @@ def update_negocio():
 @login_required
 def get_pedidos():
     try:
-        from openpyxl import load_workbook
-        config = cargar_config()
-        archivo = config.get("negocio", {}).get("archivo_pedidos", "pedidos.xlsx")
-        if not os.path.exists(archivo):
-            return jsonify([])
-        wb = load_workbook(archivo)
-        ws = wb.active
-        headers = [cell.value for cell in ws[1]]
-        pedidos = []
-        for i, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
-            pedido = dict(zip(headers, row))
-            pedido["_fila"] = i
-            pedidos.append(pedido)
-        return jsonify(pedidos)
+        pedidos = obtener_pedidos_db()
+        # Mapear campos de DB a los nombres que espera el frontend
+        result = []
+        for p in pedidos:
+            result.append({
+                "_fila": p.get("id"),
+                "Numero": p.get("numero"),
+                "Pedido": p.get("pedido"),
+                "Direccion": p.get("direccion"),
+                "Fecha": p.get("fecha"),
+                "Hora": p.get("hora"),
+                "Nombre Receptor": p.get("nombre_receptor"),
+                "Tel. Receptor": p.get("tel_receptor"),
+                "Tipo Entrega": p.get("tipo_entrega"),
+                "Dedicatoria": p.get("dedicatoria"),
+                "Observaciones": p.get("observaciones"),
+                "Estado": p.get("estado"),
+                "Costo Envio": p.get("costo_envio"),
+                "Precio Ramo": p.get("precio_ramo"),
+                "Notas Internas": p.get("notas_internas"),
+            })
+        return jsonify(result)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -129,31 +143,10 @@ def get_pedidos():
 @login_required
 def update_estado_pedido():
     try:
-        from openpyxl import load_workbook
         data = request.get_json()
-        fila = data.get("fila")
+        pedido_id = data.get("fila")
         nuevo_estado = data.get("estado")
-
-        config = cargar_config()
-        archivo = config.get("negocio", {}).get("archivo_pedidos", "pedidos.xlsx")
-
-        if not os.path.exists(archivo):
-            return jsonify({"error": "Archivo no encontrado"}), 404
-
-        wb = load_workbook(archivo)
-        ws = wb.active
-
-        # Buscar columna Estado
-        headers = [cell.value for cell in ws[1]]
-        if "Estado" not in headers:
-            # Agregar columna Estado si no existe
-            col_estado = len(headers) + 1
-            ws.cell(row=1, column=col_estado, value="Estado")
-        else:
-            col_estado = headers.index("Estado") + 1
-
-        ws.cell(row=fila, column=col_estado, value=nuevo_estado)
-        wb.save(archivo)
+        actualizar_estado_db(pedido_id, nuevo_estado)
         return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
