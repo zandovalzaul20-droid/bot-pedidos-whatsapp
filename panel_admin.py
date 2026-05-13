@@ -38,6 +38,50 @@ def login_required(f):
     return decorated
 
 
+
+# =========================
+# MENSAJES DE NOTIFICACION POR ESTADO
+# =========================
+NOTIFICACIONES_ESTADO = {
+    "✅ Anticipo recibido": "✅ *¡Anticipo confirmado!*\n\nRecibimos tu pago, ya estamos preparando tu ramo 🌸\nTe avisaremos cuando esté listo.",
+    "🌸 En preparación": "🌸 *Tu ramo está en preparación*\n\nEstamos preparando tu pedido con mucho cariño 💐\nPronto te avisamos cuando esté listo.",
+    "🚚 En camino": "🚚 *¡Tu pedido va en camino!*\n\nTu ramo ya está en camino a tu domicilio.\nEstaremos contigo en breve 🌹",
+    "🏪 Listo para recoger": "🏪 *¡Tu ramo está listo!*\n\nYa puedes pasar a recoger tu pedido 🌸\nTe esperamos.",
+    "✔️ Entregado": "✔️ *¡Pedido entregado!*\n\nEsperamos que disfrutes mucho tu ramo 🌹\n¡Gracias por confiar en Florería Ferrer!",
+    "❌ Cancelado": "❌ *Pedido cancelado*\n\nTu pedido ha sido cancelado.\nSi tienes dudas, contáctanos directamente."
+}
+
+
+def enviar_notificacion_cliente(numero, estado):
+    mensaje = NOTIFICACIONES_ESTADO.get(estado)
+    if not mensaje:
+        return
+
+    try:
+        import requests as req
+        ACCESS_TOKEN = os.getenv("WHATSAPP_ACCESS_TOKEN")
+        PHONE_NUMBER_ID = os.getenv("PHONE_NUMBER_ID")
+
+        if not ACCESS_TOKEN or not PHONE_NUMBER_ID:
+            return
+
+        numero_limpio = "".join(ch for ch in str(numero) if ch.isdigit())
+        if numero_limpio.startswith("521") and len(numero_limpio) == 13:
+            numero_limpio = "52" + numero_limpio[3:]
+
+        url = f"https://graph.facebook.com/v18.0/{PHONE_NUMBER_ID}/messages"
+        headers = {"Authorization": f"Bearer {ACCESS_TOKEN}", "Content-Type": "application/json"}
+        body = {
+            "messaging_product": "whatsapp",
+            "to": numero_limpio,
+            "type": "text",
+            "text": {"body": mensaje}
+        }
+        response = req.post(url, headers=headers, json=body)
+        print(f"[Notificacion estado] To: {numero_limpio} | Status: {response.status_code}")
+    except Exception as e:
+        print(f"Error enviando notificacion: {e}")
+
 @app.route("/")
 def index():
     return send_from_directory("panel_static", "index.html")
@@ -146,7 +190,10 @@ def update_estado_pedido():
         data = request.get_json()
         pedido_id = data.get("fila")
         nuevo_estado = data.get("estado")
+        numero_cliente = data.get("numero", "")
         actualizar_estado_db(pedido_id, nuevo_estado)
+        if numero_cliente:
+            enviar_notificacion_cliente(numero_cliente, nuevo_estado)
         return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500

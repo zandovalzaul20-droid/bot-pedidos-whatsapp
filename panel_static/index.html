@@ -34,7 +34,7 @@
     /* PANEL */
     #panel { display: none; min-height: 100vh; }
     .sidebar { position: fixed; top: 0; left: 0; width: 240px; height: 100vh; background: var(--verde); padding: 32px 0; display: flex; flex-direction: column; z-index: 100; }
-    .sidebar-logo { padding-bottom: 0 24px 8px; border-bottom: 1px solid rgba(255,255,255,0.15); }
+    .sidebar-logo { padding: 0 24px 32px; border-bottom: 1px solid rgba(255,255,255,0.15); }
     .sidebar-logo span { font-size: 28px; }
     .sidebar-logo h2 { font-family: 'Playfair Display', serif; color: white; font-size: 16px; margin-top: 8px; }
     .sidebar-logo p { color: rgba(255,255,255,0.6); font-size: 12px; margin-top: 2px; }
@@ -174,7 +174,7 @@
   <div class="login-card">
     <div class="login-logo">
       <div style="background:#F5EFE6;border-radius:12px;padding:16px 24px;display:inline-block;margin-bottom:16px;">
-        <img src="https://res.cloudinary.com/dyx5xyip4/image/upload/v1778570759/WhatsApp_Image_2026-05-11_at_11.23.45_PM_-_Editado_bnwbt3.png" alt="Ferrer Flower Boutique" style="height:180px;display:block;"/>
+        <img src="https://res.cloudinary.com/dyx5xyip4/image/upload/v1778570759/WhatsApp_Image_2026-05-11_at_11.23.45_PM_-_Editado_bnwbt3.png" alt="Ferrer Flower Boutique" style="height:80px;display:block;"/>
       </div>
       <p style="font-size:13px;color:var(--gris);margin-top:4px;">Panel de administración</p>
     </div>
@@ -220,7 +220,7 @@
 <!-- PANEL -->
 <div id="panel">
   <div class="sidebar">
-    <div class="sidebar-logo" style="text-align:center;"><img src="https://res.cloudinary.com/dyx5xyip4/image/upload/v1778570759/WhatsApp_Image_2026-05-11_at_11.23.45_PM_-_Editado_bnwbt3.png" alt="Ferrer Flower Boutique" style="height:260px;display:block;filter:invert(1);margin-bottom: -20px;"/></div>
+    <div class="sidebar-logo"><span>🌸</span><h2>Floreria Ferrer</h2><p>Panel Admin</p></div>
     <nav class="nav-menu">
       <div class="nav-item active" onclick="showPage('pedidos', this)"><span class="icon">📋</span> Pedidos</div>
       <div class="nav-item" onclick="showPage('productos', this)"><span class="icon">🌹</span> Productos</div>
@@ -397,7 +397,7 @@ async function cargarPedidos() {
       <td>
         <textarea id="nota-${p['_fila']}" style="width:120px;height:50px;padding:5px 8px;border:1.5px solid var(--borde);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:11px;resize:none;outline:none;background:var(--crema);" placeholder="Nota interna..." onblur="guardarNota(${p['_fila']}, this.value)">${p['Notas Internas']||''}</textarea>
       </td>
-      <td><select class="estado-select ${claseEstado}" onchange="cambiarEstado(${p['_fila']}, this)">${opcionesEstado}</select></td>
+      <td><select class="estado-select ${claseEstado}" onchange="cambiarEstado(${p['_fila']}, this, '${p['Numero']||''}')">${opcionesEstado}</select></td>
     </tr>`;
   }).join('');
 }
@@ -436,12 +436,16 @@ async function notificarCliente(fila, numero, pedido, tipoEntrega, precioRamo) {
   showToast(data.ok ? '📲 Cliente notificado' : '❌ Error al notificar');
 }
 
-async function cambiarEstado(fila, selectEl) {
+async function cambiarEstado(fila, selectEl, numero) {
   const nuevoEstado = selectEl.value;
   selectEl.className = `estado-select ${getClaseEstado(nuevoEstado)}`;
-  const res = await fetch('/api/pedidos/estado', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({fila, estado: nuevoEstado}) });
+  const res = await fetch('/api/pedidos/estado', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({fila, estado: nuevoEstado, numero: numero || ''})
+  });
   const data = await res.json();
-  showToast(data.ok ? '✅ Estado actualizado' : '❌ Error al guardar');
+  showToast(data.ok ? '✅ Estado actualizado y cliente notificado' : '❌ Error al guardar');
 }
 
 // ===== PRODUCTOS =====
@@ -506,12 +510,11 @@ function renderProductos() {
             <button class="btn-add-color" onclick="agregarColor('${clave}')">+ Agregar</button>
           </div>
         </div>
-        ${opciones.length ? `
         <div class="producto-campo" style="margin-top:10px;">
           <label>Opciones cantidad / precio</label>
           <div id="opciones-wrap-${clave}">${opcionesHTML}</div>
           <button onclick="agregarOpcion('${clave}')" style="margin-top:6px;padding:5px 14px;background:var(--verde-suave);color:var(--verde);border:none;border-radius:6px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;">+ Agregar opción</button>
-        </div>` : ''}
+        </div>
       </div>
     </div>`;
   }).join('');
