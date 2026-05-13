@@ -96,7 +96,7 @@ def procesar_pedido_web(numero, texto, estado):
         tipo_entrega = "domicilio" if "domicilio" in entrega.lower() else "recoger"
         pedido_desc  = f"{ramo} | {flores} | Color: {color}"
 
-        guardar_pedido_db(numero, pedido_desc, direccion, fecha, hora, receptor, tel_receptor, tipo_entrega, dedicatoria, firma, observaciones)
+        guardar_pedido_db(normalizar_numero(numero), pedido_desc, direccion, fecha, hora, receptor, tel_receptor, tipo_entrega, dedicatoria, firma, observaciones)
 
         try:
             precio_ramo = float(precio_ramo_str.replace("$", "").strip()) if precio_ramo_str else 0
@@ -161,7 +161,7 @@ def procesar_pedido_web(numero, texto, estado):
 # =========================
 def guardar_pedido(numero, pedido, direccion, fecha="", hora="", nombre_receptor="",
                    tel_receptor="", tipo_entrega="", dedicatoria="", firma="", observaciones=""):
-    guardar_pedido_db(numero, pedido, direccion, fecha, hora, nombre_receptor,
+    guardar_pedido_db(normalizar_numero(numero), pedido, direccion, fecha, hora, nombre_receptor,
                       tel_receptor, tipo_entrega, dedicatoria, firma, observaciones)
 
 
