@@ -234,6 +234,52 @@ def iniciar_scheduler():
 scheduler_thread = threading.Thread(target=iniciar_scheduler, daemon=True)
 scheduler_thread.start()
 
+# =========================
+# RASTREAR PEDIDOS
+# =========================
+def rastrear_pedidos(numero):
+    try:
+        archivo = NEGOCIO.get("archivo_pedidos", "pedidos.xlsx")
+        if not os.path.exists(archivo):
+            enviar_mensaje(numero, "No encontramos pedidos asociados a tu número 🌸")
+            return
+
+        wb = load_workbook(archivo)
+        ws = wb.active
+        headers = [cell.value for cell in ws[1]]
+        numero_normalizado = normalizar_numero(numero)
+        pedidos_cliente = []
+
+        for row in ws.iter_rows(min_row=2, values_only=True):
+            pedido = dict(zip(headers, row))
+            numero_pedido = normalizar_numero(str(pedido.get("Numero", "") or ""))
+            if numero_pedido == numero_normalizado:
+                pedidos_cliente.append(pedido)
+
+        if not pedidos_cliente:
+            enviar_mensaje(numero, "No encontramos pedidos asociados a tu número 🌸\n\nSi quieres hacer un pedido visita nuestro catálogo:\n👉 " + NEGOCIO.get("url_catalogo", ""))
+            return
+
+        mensaje = "🔍 *Tus pedidos:*\n\n"
+        for i, p in enumerate(pedidos_cliente, 1):
+            pedido_desc = p.get("Pedido", "")
+            fecha = p.get("Fecha", "-")
+            hora = p.get("Hora", "-")
+            tipo = p.get("Tipo Entrega", "-")
+            estado = p.get("Estado", "⏳ En espera de anticipo")
+            mensaje += (
+                f"*{i}. {pedido_desc}*\n"
+                f"📅 {fecha} | 🕐 {hora}\n"
+                f"📦 {tipo}\n"
+                f"Estado: {estado}\n\n"
+            )
+
+        enviar_mensaje(numero, mensaje)
+
+    except Exception as e:
+        print(f"Error rastreando pedidos: {e}")
+        enviar_mensaje(numero, "Hubo un error al buscar tus pedidos. Intenta más tarde 🌸")
+
 
 # =========================
 # WEBHOOK
@@ -307,7 +353,7 @@ def webhook():
                 enviar_mensaje(numero, f"¿Listo para hacer tu pedido? Visita nuestro catálogo:\n👉 {url_catalogo}")
 
             elif any(p in texto for p in PALABRAS.get("rastrear", [])):
-                enviar_mensaje(numero, MENSAJES.get("rastrear", ""))
+                rastrear_pedidos(numero)
 
             else:
                 enviar_mensaje(numero, (
